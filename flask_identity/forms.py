@@ -71,7 +71,7 @@ class LoginForm(BaseForm, NextFormMixin):
 
         if not self.next.data:
             next_key = config_value('NEXT_KEY')
-            if config_value('NEXT_STORE') == 'rquest':
+            if config_value('NEXT_STORE') == 'request':
                 self.next.data = request.args.get(next_key, "")
             else:
                 self.next.data = session.get(next_key, "")
