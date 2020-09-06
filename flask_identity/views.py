@@ -16,7 +16,7 @@
     :license: GPL-3.0, see LICENSE for more details.
 """
 
-from flask import request, after_this_request
+from flask import request, after_this_request, jsonify
 from flask_wtf import csrf
 from werkzeug.datastructures import MultiDict
 
@@ -26,7 +26,6 @@ from .utils import (
     current_identity,
     login_user,
     logout_user,
-    render_json,
     json_error_response,
     config_value,
     get_post_login_redirect,
@@ -51,6 +50,19 @@ else:
 def _ctx(endpoint):
     # noinspection PyProtectedMember
     return current_identity._run_ctx_processor(endpoint)
+
+
+def render_json(payload, code, headers):
+    """
+    Default JSON response handler.
+    """
+    # Force Content-Type header to json.
+    if headers is None:
+        headers = dict()
+    headers["Content-Type"] = "application/json"
+    payload = dict(meta=dict(code=code), response=payload)
+
+    return make_response(jsonify(payload), code, headers)
 
 
 def render_form_json_response(form, user, include_auth_token=False, error_status_code=400, additional=None):

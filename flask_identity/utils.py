@@ -16,14 +16,15 @@
     :license: GPL-3.0, see LICENSE for more details.
 """
 
-# noinspection PyProtectedMember
-from flask import current_app, has_request_context, make_response, request, jsonify, session, url_for, \
-    _request_ctx_stack
 from urllib.parse import parse_qsl, parse_qs, urlsplit, urlunsplit, urlencode
+
+# noinspection PyProtectedMember
+from flask import current_app, has_request_context, request, session, url_for, _request_ctx_stack
 from werkzeug.local import LocalProxy
+
 from .mixins import UserMixin
 
-current_user = LocalProxy(lambda: _get_user())
+current_user = LocalProxy(lambda: get_user())
 current_identity = LocalProxy(lambda: current_app.extensions['identity'])
 
 
@@ -150,19 +151,6 @@ def validate_redirect_url(url):
     return True
 
 
-def render_json(payload, code, headers):
-    """
-    Default JSON response handler.
-    """
-    # Force Content-Type header to json.
-    if headers is None:
-        headers = dict()
-    headers["Content-Type"] = "application/json"
-    payload = dict(meta=dict(code=code), response=payload)
-
-    return make_response(jsonify(payload), code, headers)
-
-
 def json_error_response(errors):
     """
     Helper to create an error response that adheres to the openapi spec.
@@ -278,7 +266,7 @@ def verify_password(password, password_hash):
     return current_identity._hash_context.verify_context(password, password_hash)
 
 
-def _clear_cookie(response):
+def clear_cookie(response):
     cookie_name = config_value('COOKIE_NAME')
     domain = config_value('COOKIE_DOMAIN')
     path = config_value('COOKIE_PATH')
@@ -286,7 +274,7 @@ def _clear_cookie(response):
     response.delete_cookie(cookie_name, domain=domain, path=path)
 
 
-def _get_user():
+def get_user():
     if has_request_context() and not hasattr(_request_ctx_stack.top, 'user'):
         current_identity.get_current_user()
 

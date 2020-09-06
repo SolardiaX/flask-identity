@@ -29,7 +29,8 @@ from ._token_context import TokenContext
 from .datastore import IdentityStore
 from .config import default_config
 from .mixins import AnonymousUserMixin
-from .utils import get_config, get_url, render_json, _get_user, _clear_cookie
+from .utils import get_config, get_url, get_user, clear_cookie
+from .views import render_json
 
 
 class IdentityManager(object):
@@ -187,6 +188,7 @@ class IdentityManager(object):
                 cookie = request.cookies[cookie_name]
                 user = self._load_user_from_cookie(cookie)
             else:
+                # noinspection PyTypeChecker
                 user = self._load_user_from_request(request)
 
         return self.update_request_context_with_user(user)
@@ -325,7 +327,7 @@ class IdentityManager(object):
 
     @staticmethod
     def _user_context_processor():
-        return dict(current_user=_get_user())
+        return dict(current_user=get_user())
 
     def _update_remember_cookie(self, response):
         # Don't modify the session unless there's something to do.
@@ -340,7 +342,7 @@ class IdentityManager(object):
             if operation == 'set' and self._config['SESSION_USER_ID_KEY'] in session:
                 self._set_cookie(response)
             elif operation == 'clear':
-                _clear_cookie(response)
+                clear_cookie(response)
 
         return response
 
