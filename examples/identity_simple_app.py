@@ -16,18 +16,13 @@
     :license: GPL-3.0, see LICENSE for more details.
 """
 
-import os
-import sys
-from pathlib import Path
-
-from flask import Flask, request, redirect, url_for
+from flask import request, redirect, url_for
 from pony.flask import Pony
 
 from flask_identity.decorators import roles_required
 from flask_identity.utils import hash_password, verify_password, current_user, login_user, logout_user
+from common import app
 from common.models import *
-
-app = Flask(__name__)
 
 
 @app.route('/require_roles', methods=('GET', 'POST'))
@@ -71,25 +66,6 @@ def init():
 
 
 def create_app():
-    application_path = os.getcwd()
-
-    if getattr(sys, 'frozen', False):
-        application_path = os.path.dirname(sys.executable)
-
-    app.config.update(
-        SECRET_KEY="2HF_R3JddWTLu0zJ1kSV-w",
-
-        IDENTITY_HASH_SALT='2HF_R3JddWTLu0zJ1kSV_hash$salt_',
-        IDENTITY_TOKEN_SALT='2HF_R3JddWTLu0zJ1kSV_token$salt_',
-        IDENTITY_UNAUTHORIZED_VIEW='/login',
-
-        PONY={
-            'provider': 'sqlite',
-            'filename': str(Path(application_path).joinpath('database.db')),
-            'create_db': 'True',
-        }
-    )
-
     db.bind(**app.config['PONY'])
     db.generate_mapping(create_tables=True)
 
