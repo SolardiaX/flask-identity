@@ -4,6 +4,8 @@ url = "http://mirrors.aliyun.com/pypi/simple/"
 verify_ssl = true
 
 [dev-packages]
+Sphinx = "==3.1.2"
+sphinx-press-theme = "==0.5.1"
 
 [packages]
 bcrypt = "==3.1.7"
@@ -11,11 +13,9 @@ cryptography = "==3.0"
 itsdangerous = "==1.1.0"
 passlib = "==1.7.2"
 pony = "==0.7.13"
-sphinx-press-theme = "==0.5.1"
 wtforms = "==2.3.1"
 Flask = "==1.1.2"
 Flask-WTF = "==0.14.3"
-Sphinx = "==3.1.2"
 Werkzeug = "==1.0.1"
 
 [requires]
