@@ -22,6 +22,13 @@ These configuration are used globally across all features.
     |
     | Default: ``None``.
 
+.. py:data:: IDENTITY_POST_LOGIN_VIEW
+
+    | Specifies the default view to redirect to after a user logs in. This value can be set to a URL
+    | or an endpoint name.
+    |
+    | Default: ``'/'``.
+
 .. py:data:: IDENTITY_EXEMPT_METHODS
 
     | A set of HTTP methods which are exempt from `login_required`.

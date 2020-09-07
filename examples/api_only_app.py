@@ -20,7 +20,8 @@ from flask import request, redirect, url_for
 from pony.flask import Pony
 
 from flask_identity.decorators import roles_required
-from flask_identity.utils import hash_password, verify_password, current_user, login_user, logout_user
+from flask_identity.utils import hash_password, verify_password, current_user, login_user, logout_user, \
+    get_post_login_redirect
 from common import app
 from common.models import *
 
@@ -45,7 +46,7 @@ def login():
         datastore.add_role_to_user(user, 'admin')
         if verify_password('123456', user.password):
             login_user(user)
-            return redirect(url_for('require_roles'))
+            return redirect(get_post_login_redirect())
 
     return '<form action="" method="post"><input type="text" value="xxxx" name="dynamic">' \
            '<button type="submit">Login</button></form>'

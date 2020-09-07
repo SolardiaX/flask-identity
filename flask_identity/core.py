@@ -29,7 +29,7 @@ from ._token_context import TokenContext
 from .datastore import IdentityStore
 from .config import default_config
 from .mixins import AnonymousUserMixin
-from .utils import get_config, get_url, get_user, clear_cookie
+from .utils import get_config, get_url, get_user, clear_cookie, base64_encode_param
 from .views import render_json
 
 
@@ -38,7 +38,7 @@ class IdentityManager(object):
     Simple & Customizable User Authentication and Management.
     """
 
-    def __init__(self, app=None, db=None,  user_model=None, role_model=None, **kwargs):
+    def __init__(self, app=None, db=None, user_model=None, role_model=None, **kwargs):
         """
         Init IdentityManager with `Flask(app)`, db, user_model and role_model
 
@@ -127,8 +127,8 @@ class IdentityManager(object):
                 rv.update(fn())
         return rv
 
-    def context_processor(self, fn):
-        self._add_ctx_processor(None, fn)
+    def context_processor(self, endpoint, fn):
+        self._add_ctx_processor(endpoint, fn)
 
     def unauthenticated_handler(self, fn):
         """
@@ -379,7 +379,7 @@ class IdentityManager(object):
                             httponly=httponly)
 
     # noinspection PyMethodMayBeStatic
-    def _unauth_response(self, msg, view, code, header):
+    def _unauth_response(self, msg, view, code, header, redirect_to='/'):
         if request.is_json:
             return render_json(msg, code, header)
 
@@ -388,10 +388,16 @@ class IdentityManager(object):
                 view = view()
             else:
                 try:
-                    view = get_url(view)
+                    next_key = self._config['NEXT_KEY']
+                    if self._config['NEXT_STORE'] == 'session':
+                        session[self._config['SESSION_ID_KEY']] = self._session_identifier_generator()
+                        session[next_key] = base64_encode_param(request.url)
+                        view = get_url(view)
+                    elif view is not None:
+                        view = get_url(view, qparams={next_key: base64_encode_param(request.url)})
                 except BuildError:
                     view = None
-            redirect_to = '/'
+
             if request.referrer and not request.referrer.split("?")[0].endswith(request.path):
                 redirect_to = request.referrer
 

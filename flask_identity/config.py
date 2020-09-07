@@ -25,6 +25,12 @@ default_config = {
     #: Default: ``None``.
     'UNAUTHORIZED_VIEW': None,
 
+    #: Specifies the default view to redirect to after a user logs in. This value can be set to a URL
+    #: or an endpoint name.
+    #: Default: ``'/'``.
+
+    'POST_LOGIN_VIEW': '/',
+
     #: A set of HTTP methods which are exempt from `login_required`.
     #: Default: ``'OPTIONS'``.
     'EXEMPT_METHODS': ['OPTIONS'],

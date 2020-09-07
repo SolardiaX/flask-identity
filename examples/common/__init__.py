@@ -30,7 +30,7 @@ app.config.update(
 
     PONY={
         'provider': 'sqlite',
-        'filename': str(Path(application_path).joinpath('database.db')),
+        'filename': str(Path(application_path).joinpath('_database.db')),
         'create_db': 'True',
     }
 )

@@ -16,10 +16,11 @@
     :license: GPL-3.0, see LICENSE for more details.
 """
 
-from urllib.parse import parse_qsl, parse_qs, urlsplit, urlunsplit, urlencode
+from urllib.parse import parse_qsl, urlsplit, urlunsplit, urlencode
 
 # noinspection PyProtectedMember
 from flask import current_app, has_request_context, request, session, url_for, _request_ctx_stack
+from itsdangerous import base64_decode, base64_encode
 from werkzeug.local import LocalProxy
 
 from .mixins import UserMixin
@@ -104,6 +105,15 @@ def logout_user():
     return True
 
 
+def base64_encode_param(endpoint_or_url, qparams=None):
+    param = get_url(endpoint_or_url, qparams)
+    return base64_encode(param).decode('utf-8')
+
+
+def base64_decode_param(param):
+    return param if not param else base64_decode(param).decode('utf-8')
+
+
 # noinspection PyBroadException
 def get_url(endpoint_or_url, qparams=None):
     """
@@ -169,11 +179,15 @@ def json_error_response(errors):
 
 
 def get_post_action_redirect(config_key, declared=None):
+    next_key = config_value('NEXT_KEY')
+
     urls = [
-        get_url(request.args.get("next", None)),
-        get_url(request.form.get("next", None)),
-        find_redirect(config_key),
+        base64_decode_param(get_url(request.args.get(next_key, None))),
+        base64_decode_param(get_url(request.form.get(next_key, None))),
+        base64_decode_param(get_url(session.get(next_key, None))),
+        find_redirect("IDENTITY_" + config_key),
     ]
+
     if declared:
         urls.insert(0, declared)
     for url in urls:
@@ -182,19 +196,20 @@ def get_post_action_redirect(config_key, declared=None):
 
 
 def get_post_login_redirect(declared=None):
-    return get_post_action_redirect("IDENTITY_POST_LOGIN_VIEW", declared)
+    return get_post_action_redirect("POST_LOGIN_VIEW", declared)
 
 
 def get_post_logout_redirect(declared=None):
-    return get_post_action_redirect("IDENTITY_POST_LOGOUT_VIEW", declared)
+    return get_post_action_redirect("POST_LOGOUT_VIEW", declared)
 
 
 def get_post_verify_redirect(declared=None):
-    return get_post_action_redirect("IDENTITY_POST_VERIFY_VIEW", declared)
+    return get_post_action_redirect("POST_VERIFY_VIEW", declared)
 
 
 def find_redirect(key):
-    """Returns the URL to redirect to after a user logs in successfully.
+    """
+    Returns the URL to redirect to after a user logs in successfully.
 
     :param key: The session or application configuration key to search for
     """
@@ -204,15 +219,6 @@ def find_redirect(key):
         or "/"
     )
     return rv
-
-
-def propagate_next(url):
-    # return either URL or, if URL already has a ?next=xx, return that.
-    url_next = urlsplit(url)
-    qparams = parse_qs(url_next.query)
-    if "next" in qparams:
-        return qparams["next"][0]
-    return url
 
 
 def config_value(key, app=None, default=None):
