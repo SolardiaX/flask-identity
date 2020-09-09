@@ -154,6 +154,9 @@ class IdentityManager(object):
     def render_template(self, *args, **kwargs):
         return self._template_render(*args, **kwargs)
 
+    def config_value(self, name):
+        return self._config.get(name, None)
+
     def get_current_user(self):
         """
         | Try load `UserMixin` based instance from session,
