@@ -180,10 +180,11 @@ def json_error_response(errors):
 
 def get_post_action_redirect(config_key, declared=None):
     next_key = config_value('NEXT_KEY')
+    next_field = config_value('NEXT_FIELD')
 
     urls = [
         base64_decode_param(get_url(request.args.get(next_key, None))),
-        base64_decode_param(get_url(request.form.get(next_key, None))),
+        base64_decode_param(get_url(request.form.get(next_field, None))),
         base64_decode_param(get_url(session.get(next_key, None))),
         find_redirect("IDENTITY_" + config_key),
     ]
@@ -201,10 +202,6 @@ def get_post_login_redirect(declared=None):
 
 def get_post_logout_redirect(declared=None):
     return get_post_action_redirect("POST_LOGOUT_VIEW", declared)
-
-
-def get_post_verify_redirect(declared=None):
-    return get_post_action_redirect("POST_VERIFY_VIEW", declared)
 
 
 def find_redirect(key):

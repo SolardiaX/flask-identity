@@ -30,7 +30,7 @@ from .datastore import IdentityStore
 from .config import default_config
 from .mixins import AnonymousUserMixin
 from .utils import get_config, get_url, get_user, clear_cookie, base64_encode_param
-from .views import render_json
+from .views import render_json, url_for_identity, create_blueprint
 
 
 class IdentityManager(object):
@@ -38,7 +38,7 @@ class IdentityManager(object):
     Simple & Customizable User Authentication and Management.
     """
 
-    def __init__(self, app=None, db=None, user_model=None, role_model=None, **kwargs):
+    def __init__(self, app=None, db=None, user_model=None, role_model=None, register_blueprint=True, **kwargs):
         """
         Init IdentityManager with `Flask(app)`, db, user_model and role_model
 
@@ -46,6 +46,7 @@ class IdentityManager(object):
         :param db: An orm database instance.
         :param user_model: The model class of user
         :param role_model: The model class of role
+        :param register_blueprint: Register default blueprint
         :param anonymous_user: The class of AnonymousUser based on ``AnonymousUserMixin``
         """
         self.app = app
@@ -53,6 +54,7 @@ class IdentityManager(object):
         self._context_processors = {}
         self._anonymous_user = AnonymousUserMixin
         self._kwargs = kwargs
+        self._register_blueprint = register_blueprint
         self._datastore = None
         self._token_context = None
         self._hash_context = None
@@ -61,10 +63,16 @@ class IdentityManager(object):
         self._template_render = render_template
 
         if app is not None and user_model is not None and role_model is not None:
-            self.init_app(app, db, user_model, role_model, **kwargs)
+            self.init_app(app, db, user_model, role_model, register_blueprint, **kwargs)
+
+    def __getattr__(self, name):
+        if name.upper().startswith('CONFIG_'):
+            return self._config.get(name.upper(), None)
+
+        return None
 
     # noinspection PyIncorrectDocstring
-    def init_app(self, app, db=None, user_model=None, role_model=None, **kwargs):
+    def init_app(self, app, db=None, user_model=None, role_model=None, register_blueprint=None, **kwargs):
         """
         Init IdentityManager with `Flask(app)`, db, user_model and role_model
 
@@ -72,6 +80,7 @@ class IdentityManager(object):
         :param db: A database instance
         :param user_model: The model class of user
         :param role_model: The model class of role
+        :param register_blueprint: Register default blueprint
         :param anonymous_user: The class of AnonymousUser based on ``AnonymousUserMixin``
         """
         if db is None:
@@ -80,19 +89,19 @@ class IdentityManager(object):
             raise Exception("Missing user_model for Identity.")
         if role_model is None:
             raise Exception("Missing role_model for Identity.")
+        if register_blueprint is None:
+            register_blueprint = self._register_blueprint
 
         for key, value in self._kwargs.items():
             kwargs.setdefault(key, value)
 
         for key, value in default_config.items():
-            app.config.setdefault('IDENTITY_' + key, value)
+            app.config.setdefault('IDENTITY_' + key.upper(), value)
 
         for key, value in get_config(app).items():
             kwargs[key.upper()] = value
 
         for key, value in kwargs.items():
-            if key.lower() == 'anonymous_user':
-                setattr(self, '_anonymous_user', value)
             if hasattr(self, key.lower()):
                 setattr(self, key.lower(), value)
 
@@ -100,13 +109,16 @@ class IdentityManager(object):
 
         delattr(self, '_kwargs')
 
-        datastore = self._config['DATA_STORE']
+        adapter = self._config['DATASTORE_ADAPTER']
 
-        if datastore == 'pony':
+        if adapter == 'pony':
             from .datastore import PonyIdentityStore
             self._datastore = PonyIdentityStore(db, user_model, role_model)
-        if isclass(datastore):
-            self._datastore = datastore(db, user_model, role_model)
+        elif adapter == 'sqlalchemy':
+            from .datastore import SQLAlchemyIdentityStore
+            self._datastore = SQLAlchemyIdentityStore(db, user_model, role_model)
+        if isclass(adapter):
+            self._datastore = adapter(db, user_model, role_model)
 
         self._hash_context = HashContext(app)
         self._token_context = TokenContext(app)
@@ -114,7 +126,12 @@ class IdentityManager(object):
         app.extensions['identity'] = self
 
         app.after_request(self._update_remember_cookie)
-        app.context_processor(self._user_context_processor)
+        app.context_processor(self._default_context_processor)
+
+        self.app = app
+
+        if register_blueprint:
+            create_blueprint(self, __name__, app.json_encoder)
 
     def _add_ctx_processor(self, endpoint, fn):
         group = self._context_processors.setdefault(endpoint, [])
@@ -154,8 +171,8 @@ class IdentityManager(object):
     def render_template(self, *args, **kwargs):
         return self._template_render(*args, **kwargs)
 
-    def config_value(self, name):
-        return self._config.get(name, None)
+    def config_value(self, name, default=None):
+        return self._config.get(name, default)
 
     def get_current_user(self):
         """
@@ -329,8 +346,8 @@ class IdentityManager(object):
         return False
 
     @staticmethod
-    def _user_context_processor():
-        return dict(current_user=get_user())
+    def _default_context_processor():
+        return dict(current_user=get_user(), url_for_identity=url_for_identity)
 
     def _update_remember_cookie(self, response):
         # Don't modify the session unless there's something to do.
@@ -386,23 +403,25 @@ class IdentityManager(object):
         if request.is_json:
             return render_json(msg, code, header)
 
+        next_key = self._config['NEXT_KEY']
+
         if view:
             if callable(view):
                 view = view()
             else:
                 try:
-                    next_key = self._config['NEXT_KEY']
                     if self._config['NEXT_STORE'] == 'session':
                         session[self._config['SESSION_ID_KEY']] = self._session_identifier_generator()
                         session[next_key] = base64_encode_param(request.url)
                         view = get_url(view)
-                    elif view is not None:
-                        view = get_url(view, qparams={next_key: base64_encode_param(request.url)})
                 except BuildError:
                     view = None
 
             if request.referrer and not request.referrer.split("?")[0].endswith(request.path):
                 redirect_to = request.referrer
+
+            if isinstance(view, str):
+                view = get_url(view, qparams={next_key: base64_encode_param(request.url)})
 
             return redirect(view or redirect_to)
 

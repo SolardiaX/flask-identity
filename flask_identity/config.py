@@ -28,8 +28,12 @@ default_config = {
     #: Specifies the default view to redirect to after a user logs in. This value can be set to a URL
     #: or an endpoint name.
     #: Default: ``'/'``.
-
     'POST_LOGIN_VIEW': '/',
+
+    #: Specifies the default view to redirect to after a user logs out. This value can be set to a URL
+    #: or an endpoint name.
+    #: Default: ``'/'``.
+    'POST_LOGOUT_VIEW': '/',
 
     #: A set of HTTP methods which are exempt from `login_required`.
     #: Default: ``'OPTIONS'``.
@@ -45,6 +49,9 @@ default_config = {
     #: The form field used to mark whether enable "remember me".
     #: Default: ``'remember'``
     'REMEBER_FIELD': 'remember',
+    #: The form field used to store the url parameter when redirecting to the login view.
+    #: Default: ``'next'``
+    'NEXT_FIELD': 'next',
 
     #: Specifies the default "remember me" value used when logging in a user.
     #: Default: ``False``.
@@ -97,7 +104,8 @@ default_config = {
     #: ``'session'`` (the default) or ``'request'``.
     #: Default: ``'request'``.
     'NEXT_STORE': 'request',
-    #: The key to store the url parameter when redirecting to the login view.
+    #: The key to store the source url when redirecting to the login view.
+    #: The key will be used as url parameter in request or key in session.
     #: Default: ``'_next'``.
     'NEXT_KEY': '_next',
 
@@ -112,6 +120,18 @@ default_config = {
     #: The parameter key to pass the token in HTTP request url.
     #: Default: ``'iauth'``.
     'TOKEN_AUTHENTICATION_ARG': 'iauth',
+
+    #: Specifies the name for the Flask-Identity blueprint.
+    #: Default: ``'identity'``.
+    'BLUEPRINT_NAME': 'identity',
+    'BLUEPRINT_URL_PREFIX': '/identity',
+    'BLUEPRINT_SUBDOMAIN': None,
+    'BLUEPRINT_TEMPLATE_FOLDER': 'templates',
+    'BLUEPRINT_LOGIN_URL': "/login",
+    'BLUEPRINT_LOGIN_METHODS': ['GET', 'POST'],
+    'BLUEPRINT_LOGOUT_URL': "/logout",
+    'BLUEPRINT_LOGOUT_METHODS': ['GET', 'POST'],
+    'BLUEPRINT_LOGIN_USER_TEMPLATE': None,
 
     #: List of accepted password hashes.
     #: See `Passlib CryptContext docs on Constructor Keyword ``'schemes'``
@@ -135,11 +155,10 @@ default_config = {
     #: Default: ``dict()``
     'HASH_OPTIONS': dict(),
 
-    #: The custom identity data store to use. This can be either
-    #: ``pony`` (as default),
+    #: The custom identity data store to use. This can be either ``'pony' | 'sqlalchemy'``,
     #: or a custom class implement from ``IdentityStore`` and ``Store``.
-    #: Default: ``pony``
-    'DATA_STORE': 'pony',
+    #: Default: ``None``
+    'DATASTORE_ADAPTER': 'None',
 
     #: The user object can be activeable or not.
     #: This can be either a property name of ``User`` object,

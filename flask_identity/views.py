@@ -16,7 +16,7 @@
     :license: GPL-3.0, see LICENSE for more details.
 """
 
-from flask import request, after_this_request, jsonify
+from flask import request, after_this_request, jsonify, url_for, Blueprint
 from flask_wtf import csrf
 from werkzeug.datastructures import MultiDict
 
@@ -50,6 +50,22 @@ else:
 def _ctx(endpoint):
     # noinspection PyProtectedMember
     return current_identity._run_ctx_processor(endpoint)
+
+
+def url_for_identity(endpoint, **values):
+    """
+    Return a URL for the Flask-Identity blueprint.
+
+    This is method is a wrapper of :meth:``Flask.url_for``.
+
+    :param endpoint: the endpoint of the URL (name of the function)
+    :param values: the variable arguments of the URL rule
+    """
+    blueprint_name = current_identity.config_value('BLUEPRINT_NAME')
+    if blueprint_name is None:
+        raise RuntimeError('Blueprint not registed!')
+
+    return url_for(f"{blueprint_name}.{endpoint}", **values)
 
 
 def render_json(payload, code, headers):
@@ -114,6 +130,9 @@ def login():
             return redirect(get_post_login_redirect())
 
     form_class = current_identity.login_form
+    if form_class is None:
+        from .forms import LoginForm
+        form_class = LoginForm
 
     if request.is_json:
         if request.content_length:
@@ -141,7 +160,7 @@ def login():
         return redirect(get_post_login_redirect())
     else:
         return current_identity.render_template(
-            config_value("LOGIN_USER_TEMPLATE"), login_form=form, **_ctx("login")
+            config_value("BLUEPRINT_LOGIN_USER_TEMPLATE"), login_form=form, **_ctx("login")
         )
 
 
@@ -158,3 +177,26 @@ def logout():
         return render_json({}, 200, headers=None)
 
     return redirect(get_post_logout_redirect())
+
+
+def create_blueprint(identity, import_name, json_encoder=None):
+    """Creates the identity extension blueprint"""
+
+    bp = Blueprint(
+        identity.config_value('BLUEPRINT_NAME'),
+        import_name,
+        url_prefix=identity.config_value('BLUEPRINT_URL_PREFIX'),
+        subdomain=identity.config_value('BLUEPRINT_SUBDOMAIN'),
+        template_folder=identity.config_value('BLUEPRINT_TEMPLATE_FOLDER'),
+    )
+
+    if json_encoder:
+        bp.json_encoder = json_encoder
+
+    bp.route(identity.config_value('BLUEPRINT_LOGIN_URL'),
+             methods=identity.config_value('BLUEPRINT_LOGIN_METHODS'), endpoint="login")(login)
+
+    bp.route(identity.config_value('BLUEPRINT_LOGOUT_URL'),
+             methods=identity.config_value('BLUEPRINT_LOGOUT_METHODS'), endpoint="logout")(logout)
+
+    identity.app.register_blueprint(bp)

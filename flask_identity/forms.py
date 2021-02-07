@@ -55,6 +55,7 @@ class NextFormMixin:
 
 _IDENTITY_FIELD = config_value('IDENTITY_FIELD')
 _REMEBER_FIELD = config_value('REMEBER_FIELD')
+_NEXT_FIELD = config_value('NEXT_FIELD')
 
 
 class LoginForm(BaseForm, NextFormMixin):
@@ -62,20 +63,24 @@ class LoginForm(BaseForm, NextFormMixin):
     The default login form
     """
     locals()[_IDENTITY_FIELD] = StringField(_IDENTITY_FIELD, validators=[DataRequired()], default='')
-    locals()[_REMEBER_FIELD] = BooleanField(BooleanField)
+    locals()[_REMEBER_FIELD] = BooleanField(_REMEBER_FIELD)
+    locals()[_NEXT_FIELD] = HiddenField(_NEXT_FIELD)
+
     password = PasswordField('password', validators=[DataRequired()], default='')
 
     def __init__(self, *args, **kwargs):
         self.user = None
+        self.next_url = None
         super().__init__(*args, **kwargs)
 
         if not self.next.data:
             next_key = config_value('NEXT_KEY')
             if config_value('NEXT_STORE') == 'request':
-                self.next.data = request.args.get(next_key, "")
+                getattr(self, _NEXT_FIELD).data = request.args.get(next_key, "")
             else:
-                self.next.data = session.get(next_key, "")
-        self.remember.default = config_value("DEFAULT_REMEMBER_ME")
+                getattr(self, _NEXT_FIELD).data = session.get(next_key, "")
+
+        getattr(self, _REMEBER_FIELD).default = config_value("DEFAULT_REMEMBER_ME")
 
     def validate(self):
         if not super().validate():
@@ -88,3 +93,5 @@ class LoginForm(BaseForm, NextFormMixin):
             hash_password(self.password.data)
 
             return False
+
+        return True
