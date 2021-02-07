@@ -192,13 +192,12 @@ These configuration are used globally across all features.
     |
     | Default: ``dict()``.
 
-.. py:data:: IDENTITY_DATA_STORE
+.. py:data:: IDENTITY_DATASTORE_ADAPTER
 
-    | The custom identity data store to use. This can be either
-    | ``'pony'`` (as default),
+    | The custom identity data store to use. This can be either ``'pony' | 'sqlalchemy'``,
     | or a custom class implement from ``IdentityStore`` and ``Store``.
     |
-    | Default: ``'pony'``.
+    | Default: ``None``
 
 Messages
 --------------
