@@ -7,30 +7,37 @@
 
 # -*- coding: utf-8 -*-
 
-
 import os
-import sys
-from pathlib import Path
+
 from flask import Flask
 
 
-application_path = os.getcwd()
-
-app = Flask(__name__)
-
-if getattr(sys, 'frozen', False):
-    application_path = os.path.dirname(sys.executable)
-
+app = Flask('Flask-Identity-Examples', root_path=os.getcwd())
 app.config.update(
     SECRET_KEY="2HF_R3JddWTLu0zJ1kSV-w",
 
     IDENTITY_HASH_SALT='2HF_R3JddWTLu0zJ1kSV_hash$salt_',
     IDENTITY_TOKEN_SALT='2HF_R3JddWTLu0zJ1kSV_token$salt_',
-    IDENTITY_UNAUTHORIZED_VIEW='/login',
+    IDENTITY_DATASTORE_ADAPTER='sqlalchemy',
 
-    PONY={
-        'provider': 'sqlite',
-        'filename': str(Path(application_path).joinpath('_database.db')),
-        'create_db': 'True',
-    }
+    SQLALCHEMY_DATABASE_URI='sqlite://',
+    SQLALCHEMY_TRACK_MODIFICATIONS=False,
+    SQLALCHEMY_ENGINE_OPTIONS={"pool_pre_ping": True},
 )
+
+
+@app.before_first_request
+def init():
+    from flask_identity.utils import hash_password
+    from common.models import identity
+
+    datastore = identity.datastore
+    admin = datastore.find_user(username='admin')
+    role = datastore.find_role(name='admin')
+    if admin is None:
+        admin = datastore.create_user(**{'username': 'admin', 'password': hash_password('123456'), 'display': 'Admin'})
+    if role is None:
+        role = datastore.create_role(**{'name': 'admin', 'display': 'Admin'})
+
+    if admin and not admin.has_roles('admin'):
+        datastore.add_role_to_user(admin, role)

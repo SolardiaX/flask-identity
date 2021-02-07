@@ -1,0 +1,18 @@
+{% block content %}
+<form method="POST" name="login_form">
+  <div>
+    <span><label for="username">Username</label></span>
+    <span><input type="text" id="username" name="username"></span>
+  </div>
+  <div>
+    <span><label for="password">Password</label></span>
+    <span><input type="text" id="password" name="password"></span>
+  </div>
+  <div>
+    <span><button type="submit">Login</button></span>
+  </div>
+  {% if error | length > 0 %}
+  <p>{{ error }}</p>
+  {% endif %}
+</form>
+{% endblock %}
