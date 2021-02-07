@@ -326,12 +326,76 @@ class PonyIdentityStore(IdentityStore, PonyStore):
 
         return self.get(self.role_model, **kwargs)
 
-    def add_role_to_user(self, user, role):
-        user, role = self._prepare_role_modify_args(user, role)
-        if role not in user.roles:
-            user.roles.add(role)
-            # noinspection PyUnresolvedReferences
-            self.save(user)
-            return True
 
-        return False
+class SQLAlchemyStore(Store):
+    """
+    Implements the DbAdapter interface to find, add, update and delete
+    database objects using SQLAlchemy.
+    """
+
+    def add(self, obj):
+        return self.db.session.add(obj)
+
+    def commit(self):
+        self.db.session.commit()
+
+    def delete(self, obj):
+        self.db.session.delete(obj)
+
+    def find(self, objectclass, **kwargs):
+        query = objectclass.query
+        for field_name, field_value in kwargs.items():
+            # Make sure that ObjectClass has a 'field_name' property
+            field = getattr(objectclass, field_name, None)
+            if field is None:
+                raise KeyError(
+                    "BaseAlchemyAdapter.find_first_object(): Class '%s' has no field '%s'." % (objectclass, field_name)
+                )
+
+            # Add a filter to the query
+            query = query.filter(field == field_value)
+
+        # Execute query
+        return query.all()
+
+    def get(self, objectclass, **kwargs):
+        query = objectclass.query
+        for field_name, field_value in kwargs.items():
+            # Make sure that ObjectClass has a 'field_name' property
+            field = getattr(objectclass, field_name, None)
+            if field is None:
+                raise KeyError(
+                    "BaseAlchemyAdapter.find_first_object(): Class '%s' has no field '%s'." % (objectclass, field_name))
+
+            # Add a case sensitive filter to the query
+            query = query.filter(field == field_value)  # case sensitive!!
+
+        # Execute query
+        return query.first()
+
+    def save(self, obj):
+        self.db.session.add(obj)
+        self.db.session.commit()
+        return obj
+
+
+class SQLAlchemyIdentityStore(IdentityStore, SQLAlchemyStore):
+    """
+    A SQLAlchemy identity store implementation for IdentityManager.
+    """
+
+    def __init__(self, db, user_model, role_model):
+        IdentityStore.__init__(self, user_model, role_model)
+        SQLAlchemyStore.__init__(self, db)
+
+    def find_user(self, *args, **kwargs):
+        if len(args) > 0:
+            kwargs.update({config_value('IDENTITY_FIELD'): args[0]})
+
+        return self.get(self.user_model, **kwargs)
+
+    def find_role(self, *args, **kwargs):
+        if len(args) > 0:
+            kwargs.update({config_value('IDENTITY_FIELD'): args[0]})
+
+        return self.get(self.role_model, **kwargs)
