@@ -7,7 +7,8 @@ default = true
 name = "Flask-Identity"
 version = "1.0.0"
 description = "An api based identity framework for Flask"
-authors = ["haoch <solardiax@gmail.com>"]
+authors = ["SolardiaX <solardiax@hotmail.com>"]
+maintainers = ["SolardiaX <solardiax@hotmail.com>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
