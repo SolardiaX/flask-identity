@@ -6,4 +6,4 @@
 
 docs/_build/
 docs/_templates/
-!/examples/*.db
+examples/**/*.db
