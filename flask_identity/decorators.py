@@ -1,10 +1,3 @@
-#  Disclaimer & Copyright Notice
-#
-#   Project: Flask-Identity
-#    Author: hchenam
-#
-#  Copyright (c) 2019 DreamEx Works, All rights reserved.
-
 # -*- coding: utf-8 -*-
 
 """
@@ -12,7 +5,8 @@
     ~~~~~~~~~~~~~~~~~~~
     Decorators definition of Flask-Identity
 
-    :copyright: (c) 2019 by DreamEx Works.
+    :author: solardiax <solardiax@hotmail.com>
+    :copyright: (c) 2020 by DreamEx Works.
     :license: GPL-3.0, see LICENSE for more details.
 """
 
