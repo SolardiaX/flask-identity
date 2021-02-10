@@ -10,7 +10,7 @@
     :license: GPL-3.0, see LICENSE for more details.
 """
 
-from flask import request, after_this_request, jsonify, url_for, Blueprint
+from flask import request, after_this_request, jsonify, url_for, Blueprint, session
 from flask_wtf import csrf
 from werkzeug.datastructures import MultiDict
 

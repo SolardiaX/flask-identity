@@ -73,7 +73,7 @@ default_config = {
     #: #: Default: ``False``.
     'COOKIE_REFRESH_EACH_REQUEST': False,
 
-    #: The id used to identity user in session or cookie.
+    #: The id used to identity user in session.
     #: Default: ``'user_id'``.
     'SESSION_USER_ID_KEY': 'user_id',
     #: The mode to use session protection in.

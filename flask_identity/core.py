@@ -197,7 +197,9 @@ class IdentityManager(object):
         # Load user from Remember Me Cookie or Request Loader
         if user is None:
             cookie_name = self._config['COOKIE_NAME']
-            has_cookie = (cookie_name in request.cookies and session.get(self._config['SESSION_REMBER_KEY']) != 'clear')
+            has_cookie = (
+                        cookie_name in request.cookies and session.get(self._config['SESSION_REMEBER_KEY']) != 'clear'
+            )
             if has_cookie:
                 cookie = request.cookies[cookie_name]
                 user = self._load_user_from_cookie(cookie)
@@ -262,11 +264,13 @@ class IdentityManager(object):
         # noinspection PyBroadException
         try:
             data = self._token_context.verify_token(cookie, ttl=self._config['COOKIE_DURATION'])
-            identity_field = data[self._config['IDENTITY_FIELD']]
-            if identity_field is not None:
-                session[self._config['SESSION_USER_ID_KEY']] = identity_field
+            identity_id = data[self._config['IDENTITY_FIELD']]
+            if identity_id is not None:
+                session[self._config['SESSION_USER_ID_KEY']] = self._token_context.generate_token(
+                    **{self._config['IDENTITY_FIELD']: identity_id}
+                )
                 session[self._config['SESSION_FRESH_KEY']] = False
-                user = self._load_user_from_datastore(identity_field)
+                user = self._load_user_from_datastore(identity_id)
                 if user is not None:
                     return user
         except Exception:
@@ -334,7 +338,7 @@ class IdentityManager(object):
                 for k in _SESSION_KEYS:
                     sess.pop(k, None)
 
-                sess[self._config['SESSION_REMBER_KEY']] = 'clear'
+                sess[self._config['SESSION_REMEBER_KEY']] = 'clear'
                 return True
 
         return False
@@ -376,9 +380,7 @@ class IdentityManager(object):
             duration = self._config['COOKIE_DURATION']
 
         # prepare data
-        key = self._config['IDENTITY_FIELD']
-        user_id = session[self._config['SESSION_USER_ID_KEY']]
-        data = self._token_context.generate_token({key: user_id})
+        data = session[self._config['SESSION_USER_ID_KEY']]
 
         if isinstance(duration, int):
             duration = timedelta(seconds=duration)

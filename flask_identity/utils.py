@@ -59,10 +59,10 @@ def login_user(user: UserMixin, remember=False, duration=None, fresh=True):
     session[config_value('SESSION_FRESH_KEY')] = fresh
 
     if remember:
-        session[config_value('SESSION_REMBER_KEY')] = 'set'
+        session[config_value('SESSION_REMEBER_KEY')] = 'set'
         if duration is not None:
             try:
-                session[config_value('SESSION_REMBER_SECONDS_KEY')] = duration.total_seconds()
+                session[config_value('SESSION_REMEBER_SECONDS_KEY')] = duration.total_seconds()
             except AttributeError:
                 raise Exception('duration must be a datetime.timedelta, instead got: {0}'.format(duration))
 
@@ -89,8 +89,8 @@ def logout_user():
 
     cookie_name = config_value('COOKIE_NAME')
     if cookie_name in request.cookies:
-        session[config_value('SESSION_REMBER_KEY')] = 'clear'
-        remember_seconds = config_value('SESSION_REMBER_SECONDS_KEY')
+        session[config_value('SESSION_REMEBER_KEY')] = 'clear'
+        remember_seconds = config_value('SESSION_REMEBER_SECONDS_KEY')
         if remember_seconds in session:
             session.pop(remember_seconds)
 

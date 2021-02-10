@@ -50,7 +50,10 @@ class TokenContext(object):
         """
         data = {}
         for idx, arg in enumerate(args):
-            data.update({str(idx): arg})
+            if isinstance(arg, dict):
+                data.update(**arg)
+            else:
+                data.update({str(idx): arg})
 
         if kwargs is not None:
             data.update(**kwargs)
@@ -86,7 +89,7 @@ class TokenContext(object):
             encrypted_bytes = token.encode()
 
             # Verify signature, verify expiration, and decrypt using ``cryptography.fernet.Fernet()``
-            source_bytes = self.fernet.decrypt(encrypted_bytes, ttl.seconds if ttl else None)
+            source_bytes = self.fernet.decrypt(encrypted_bytes, ttl.total_seconds() if ttl else None)
             source = source_bytes.decode('utf-8')
             return json.loads(source)
         except Exception:
