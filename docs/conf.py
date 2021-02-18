@@ -12,6 +12,8 @@
 #
 import os
 import sys
+from pallets_sphinx_themes import ProjectLink
+
 sys.path.insert(0, os.path.abspath('..'))
 
 
@@ -28,9 +30,11 @@ author = 'SolardiaX'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    "pallets_sphinx_themes",
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
     "sphinx.ext.intersphinx",
+    "sphinx_issues",
 ]
 
 intersphinx_mapping = {
@@ -60,12 +64,39 @@ master_doc = 'index'
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'press'
+html_theme = 'flask'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+
+# Theme options are theme-specific and customize the look and feel of a theme
+# further.  For a list of options available for each theme, see the
+# documentation.
+html_theme_options = {"index_sidebar_logo": False}
+
+html_context = {
+    "project_links": [
+        ProjectLink("PyPI releases", "https://pypi.org/project/Flask-Identity/"),
+        ProjectLink("Source Code", "https://github.com/solardiax/flask-identity/"),
+        ProjectLink(
+            "Issue Tracker", "https://github.com/solardiax/flask-identity/issues/"
+        ),
+    ]
+}
+
+# If true, links to the reST sources are added to the pages.
+html_show_sourcelink = False
+
+# -- Theme configuration --
+html_css_files = ["custom.css"]
+
+# Custom sidebar templates, maps document names to template names.
+html_sidebars = {
+    "index": ["project.html", "localtoc.html", "searchbox.html"],
+    "**": ["localtoc.html", "relations.html", "searchbox.html"],
+}
 
 # -- Autodoc ---
 add_module_names = False    # Remove module paths from docs
@@ -73,5 +104,6 @@ autodoc_default_flags = ['members', 'undoc-members', 'inherited-members']
 autodoc_member_order = 'bysource'
 autoclass_content = 'both'   # Show class doc, but not __init__ doc
 
-# -- Theme configuration --
-html_css_files = ["custom.css"]
+# -- Options for sphinx-issues ---------------------------------------------
+# Github repo
+issues_github_path = "solardiax/flask-identity"
