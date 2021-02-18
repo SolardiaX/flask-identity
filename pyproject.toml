@@ -6,10 +6,33 @@ default = true
 [tool.poetry]
 name = "Flask-Identity"
 version = "1.0.0"
-description = "An api based identity framework for Flask"
+description = "A lightweight extension & library to security Flask applications quickly and simply."
 authors = ["SolardiaX <solardiax@hotmail.com>"]
 maintainers = ["SolardiaX <solardiax@hotmail.com>"]
 license = "MIT"
+readme="README.rst"
+repository="https://github.com/SolardiaX/flask-identity"
+homepage="https://github.com/SolardiaX/flask-identity"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Web Environment",
+    "Framework :: Flask",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "Topic :: Security",
+    "Topic :: Utilities",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+include = [
+    "LICENSE.rst"
+]
 
 [tool.poetry.dependencies]
 python = "^3.6"
@@ -22,7 +45,6 @@ flask-wtf = "^0.14.3"
 [tool.poetry.dev-dependencies]
 flask-sqlalchemy = "^2.4.4"
 sphinx = "^3.5.1"
-sphinx-press-theme = "^0.5.1"
 flask-sphinx-themes = "^1.0.2"
 pallets-sphinx-themes = "^1.2.3"
 sphinx-issues = "^1.2.0"

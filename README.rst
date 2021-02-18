@@ -22,7 +22,7 @@ Flask-Identity
     :target: https://flask-identity.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
 
-Quickly add security features to your Flask application.
+A lightweight extension & library to security Flask applications quickly and simply.
 
 About Flask-Identity
 ------------------
