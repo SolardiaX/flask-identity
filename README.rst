@@ -10,8 +10,8 @@ Flask-Identity
 .. image:: https://img.shields.io/github/tag/solardiax/flask-identity.svg
     :target: https://github.com/solardiax/flask-identity/releases
 
-.. image:: https://img.shields.io/pypi/dm/flask-security-too.svg
-    :target: https://pypi.python.org/pypi/flask-security-too
+.. image:: https://img.shields.io/pypi/dm/flask-identity.svg
+    :target: https://pypi.python.org/pypi/flask-identity
     :alt: Downloads
 
 .. image:: https://img.shields.io/github/license/solardiax/flask-identity.svg
@@ -21,9 +21,6 @@ Flask-Identity
 .. image:: https://readthedocs.org/projects/flask-identity/badge/?version=latest
     :target: https://flask-identity.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
-
-.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
-    :target: https://github.com/python/black
 
 Quickly add security features to your Flask application.
 
