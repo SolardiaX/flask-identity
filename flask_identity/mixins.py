@@ -58,20 +58,22 @@ class UserMixin(object):
         """
         Return True if the user has all of the specified roles. Return False otherwise.
 
-            has_roles() accepts a list of requirements:
-                has_role(requirement1, requirement2, requirement3).
+        has_roles() accepts a list of requirements:
+            has_roles(requirement1, requirement2, requirement3).
 
-            Each requirement is either a role_name, or a tuple_of_role_names.
-                role_name example:   'manager'
-                tuple_of_role_names: ('funny', 'witty', 'hilarious')
-            A role_name-requirement is accepted when the user has this role.
-            A tuple_of_role_names-requirement is accepted when the user has ONE of these roles.
-            has_roles() returns true if ALL of the requirements have been accepted.
+        Each requirement is either a role_name, or a tuple_of_role_names.
+            role_name example:   'manager'
+            tuple_of_role_names: ('funny', 'witty', 'hilarious')
 
-            For example:
-                has_roles('a', ('b', 'c'), d)
-            Translates to:
-                User has role 'a' AND (role 'b' OR role 'c') AND role 'd'
+        A role_name-requirement is accepted when the user has this role.
+        A tuple_of_role_names-requirement is accepted when the user has ONE of these roles.
+
+        has_roles() returns true if ALL of the requirements have been accepted.
+
+        For example:
+            has_roles('a', ('b', 'c'), d)
+        Translates to:
+            User has role 'a' AND (role 'b' OR role 'c') AND role 'd'
         """
         roles = getattr(self, 'roles') if hasattr(self, 'roles') else ()
         role_names = [(r.name if isinstance(r, RoleMixin) else r) for r in roles]
@@ -97,14 +99,6 @@ class UserMixin(object):
         # All requirements have been met: return True
         return True
 
-    # noinspection PyMethodMayBeStatic
-    def get_security_payload(self):
-        """
-        Serialize user object as response payload.
-        :return:
-        """
-        return {}
-
     def get_auth_token(self):
         """
         Constructs the user's authentication token.
@@ -112,8 +106,13 @@ class UserMixin(object):
         This data **MUST** be securely signed using the identity token_context
         """
         from .utils import current_identity
+
+        field = current_identity.config_value('IDENTITY_FIELD')
+
         # noinspection PyProtectedMember
-        return current_identity._token_context.generate_token({'id': self.get_id()})
+        return current_identity._token_context.generate_token({
+            field: getattr(self, field)
+        })
 
     def __eq__(self, other):
         """

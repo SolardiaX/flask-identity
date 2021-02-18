@@ -23,7 +23,7 @@ current_user = LocalProxy(lambda: get_user())
 current_identity = LocalProxy(lambda: current_app.extensions['identity'])
 
 
-def login_user(user: UserMixin, remember=False, duration=None, fresh=True):
+def login_user(user: UserMixin, remember=None, duration=None, fresh=True):
     """
     Logs a user in. You should pass the actual user object to this. If the
     user's `is_active` property is ``False``, they will not be logged in
@@ -35,7 +35,7 @@ def login_user(user: UserMixin, remember=False, duration=None, fresh=True):
     :param user: The user object to log in.
     :type user: object
     :param remember: Whether to remember the user after their session expires.
-        Defaults to ``False``.
+        Defaults to ``IDENTITY_DEFAULT_REMEMBER_ME``.
     :type remember: bool
     :param duration: The amount of time before the remember cookie expires. If
         ``None`` the value set in the settings is used. Defaults to ``None``.
@@ -48,9 +48,10 @@ def login_user(user: UserMixin, remember=False, duration=None, fresh=True):
         return False
 
     user_id = getattr(user, config_value('IDENTITY_FIELD'))
+    remember = config_value('REMEMBER_ME') if remember is None else remember
 
     # noinspection PyProtectedMember
-    session[config_value('SESSION_USER_ID_KEY')] = current_identity._token_context.generate_token(
+    session[config_value('IDENTITY_TOKEN_NAME')] = current_identity._token_context.generate_token(
         **{config_value('IDENTITY_FIELD'): user_id}
     )
 
@@ -59,12 +60,12 @@ def login_user(user: UserMixin, remember=False, duration=None, fresh=True):
     session[config_value('SESSION_FRESH_KEY')] = fresh
 
     if remember:
-        session[config_value('SESSION_REMEBER_KEY')] = 'set'
-        if duration is not None:
-            try:
-                session[config_value('SESSION_REMEBER_SECONDS_KEY')] = duration.total_seconds()
-            except AttributeError:
-                raise Exception('duration must be a datetime.timedelta, instead got: {0}'.format(duration))
+        session[config_value('COOKIE_SESSION_STATE_KEY')] = 'set'
+        duration = config_value('TOKEN_DURATION') if duration is None else duration
+        try:
+            session[config_value('COOKIE_DURATION_SESSION_KEY')] = duration.total_seconds()
+        except AttributeError:
+            raise Exception('duration must be a datetime.timedelta, instead got: {0}'.format(duration))
 
     current_identity.update_request_context_with_user(user)
 
@@ -76,7 +77,7 @@ def logout_user():
     Logs a user out. (You do not need to pass the actual user.) This will
     also clean up the remember me cookie if it exists.
     """
-    id_key = config_value('SESSION_USER_ID_KEY')
+    id_key = config_value('IDENTITY_TOKEN_NAME')
     if id_key in session:
         session.pop(id_key)
 
@@ -89,8 +90,8 @@ def logout_user():
 
     cookie_name = config_value('COOKIE_NAME')
     if cookie_name in request.cookies:
-        session[config_value('SESSION_REMEBER_KEY')] = 'clear'
-        remember_seconds = config_value('SESSION_REMEBER_SECONDS_KEY')
+        session[config_value('COOKIE_SESSION_STATE_KEY')] = 'clear'
+        remember_seconds = config_value('COOKIE_DURATION_SESSION_KEY')
         if remember_seconds in session:
             session.pop(remember_seconds)
 
@@ -174,7 +175,7 @@ def json_error_response(errors):
 
 def get_post_action_redirect(config_key, declared=None):
     next_key = config_value('NEXT_KEY')
-    next_field = config_value('NEXT_FIELD')
+    next_field = config_value('FORM_NEXT_FIELD')
 
     urls = [
         base64_decode_param(get_url(request.args.get(next_key, None))),

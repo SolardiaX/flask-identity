@@ -137,7 +137,7 @@ def login():
         form = form_class(request.form)
 
     if form.validate_on_submit():
-        remember_me = form.remember.data if config_value('REMEBER_FIELD') in form else None
+        remember_me = form.remember.data if config_value('FORM_REMEBER_FIELD') in form else None
         login_user(form.user, remember=remember_me)
         after_this_request(_commit)
 

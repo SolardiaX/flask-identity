@@ -10,6 +10,8 @@
     :license: GPL-3.0, see LICENSE for more details.
 """
 
+import logging
+
 from datetime import datetime, timedelta
 from hashlib import sha512
 from inspect import isclass
@@ -26,13 +28,15 @@ from .mixins import AnonymousUserMixin
 from .utils import get_config, get_url, get_user, clear_cookie, base64_encode_param
 from .views import render_json, url_for_identity, create_blueprint
 
+logger = logging.getLogger(__name__)
+
 
 class IdentityManager(object):
     """
     Simple & Customizable User Authentication and Management.
     """
 
-    def __init__(self, app=None, db=None, user_model=None, role_model=None, register_blueprint=True, **kwargs):
+    def __init__(self, app=None, db=None, user_model=None, role_model=None, register_blueprint=None, **kwargs):
         """
         Init IdentityManager with `Flask(app)`, db, user_model and role_model
 
@@ -124,6 +128,10 @@ class IdentityManager(object):
 
         self.app = app
 
+        if register_blueprint is None:
+            register_blueprint = self._config.get('BLUEPRINT_ENABLED', True)
+            self._register_blueprint = register_blueprint
+
         if register_blueprint:
             create_blueprint(self, __name__, app.json_encoder)
 
@@ -187,7 +195,7 @@ class IdentityManager(object):
         user = None
 
         # Load user from Flask Session
-        id_key = self._config['SESSION_USER_ID_KEY']
+        id_key = self._config['IDENTITY_TOKEN_NAME']
         user_id = session.get(id_key)
         if user_id is not None:
             data = self._token_context.verify_token(user_id)
@@ -198,7 +206,7 @@ class IdentityManager(object):
         if user is None:
             cookie_name = self._config['COOKIE_NAME']
             has_cookie = (
-                        cookie_name in request.cookies and session.get(self._config['SESSION_REMEBER_KEY']) != 'clear'
+                    cookie_name in request.cookies and session.get(self._config['COOKIE_SESSION_STATE_KEY']) != 'clear'
             )
             if has_cookie:
                 cookie = request.cookies[cookie_name]
@@ -263,10 +271,10 @@ class IdentityManager(object):
     def _load_user_from_cookie(self, cookie):
         # noinspection PyBroadException
         try:
-            data = self._token_context.verify_token(cookie, ttl=self._config['COOKIE_DURATION'])
+            data = self._token_context.verify_token(cookie, ttl=self._config['TOKEN_DURATION'])
             identity_id = data[self._config['IDENTITY_FIELD']]
             if identity_id is not None:
-                session[self._config['SESSION_USER_ID_KEY']] = self._token_context.generate_token(
+                session[self._config['IDENTITY_TOKEN_NAME']] = self._token_context.generate_token(
                     **{self._config['IDENTITY_FIELD']: identity_id}
                 )
                 session[self._config['SESSION_FRESH_KEY']] = False
@@ -279,8 +287,8 @@ class IdentityManager(object):
         return self._anonymous_user()
 
     def _load_user_from_request(self, req):
-        header_key = self._config['TOKEN_AUTHENTICATION_HEADER']
-        args_key = self._config['TOKEN_AUTHENTICATION_ARG']
+        header_key = self._config['REQUEST_TOKEN_AUTHENTICATION_HEADER']
+        args_key = self._config['REQUEST_TOKEN_AUTHENTICATION_ARG']
         header_token = req.headers.get(header_key, None)
         token = req.args.get(args_key, header_token)
         if req.is_json:
@@ -290,10 +298,10 @@ class IdentityManager(object):
 
         # noinspection PyBroadException
         try:
-            data = self._token_context.verify_token(token, ttl=self._config['TOKEN_MAX_AGE'])
+            data = self._token_context.verify_token(token, ttl=self._config['TOKEN_DURATION'])
             identity_field = data[self._config['IDENTITY_FIELD']]
             user = self._load_user_from_datastore(identity_field)
-            if user and self._hash_context.verify_context(data[self._config['TOKEN_FIELD']], user.password):
+            if user and self._hash_context.verify_context(data[self._config['IDENTITY_TOKEN_NAME']], user.password):
                 return user
         except Exception:
             pass
@@ -338,7 +346,7 @@ class IdentityManager(object):
                 for k in _SESSION_KEYS:
                     sess.pop(k, None)
 
-                sess[self._config['SESSION_REMEBER_KEY']] = 'clear'
+                sess[self._config['COOKIE_SESSION_STATE_KEY']] = 'clear'
                 return True
 
         return False
@@ -349,7 +357,7 @@ class IdentityManager(object):
 
     def _update_remember_cookie(self, response):
         # Don't modify the session unless there's something to do.
-        remeber_key = self._config['SESSION_REMEBER_KEY']
+        remeber_key = self._config['COOKIE_SESSION_STATE_KEY']
         if remeber_key not in session and \
                 self._config['COOKIE_REFRESH_EACH_REQUEST']:
             session[remeber_key] = 'set'
@@ -357,7 +365,7 @@ class IdentityManager(object):
         if remeber_key in session:
             operation = session.pop(remeber_key, None)
 
-            if operation == 'set' and self._config['SESSION_USER_ID_KEY'] in session:
+            if operation == 'set' and self._config['IDENTITY_TOKEN_NAME'] in session:
                 self._set_cookie(response)
             elif operation == 'clear':
                 clear_cookie(response)
@@ -372,15 +380,15 @@ class IdentityManager(object):
 
         secure = self._config['COOKIE_SECURE']
         httponly = self._config['COOKIE_HTTPONLY']
-        session_remeber_seconds_key = self._config['SESSION_REMEBER_SECONDS_KEY']
+        cookie_duration_session_key = self._config['COOKIE_DURATION_SESSION_KEY']
 
-        if session_remeber_seconds_key in session:
-            duration = timedelta(seconds=session[session_remeber_seconds_key])
+        if cookie_duration_session_key in session:
+            duration = timedelta(seconds=session[cookie_duration_session_key])
         else:
-            duration = self._config['COOKIE_DURATION']
+            duration = self._config['TOKEN_DURATION']
 
         # prepare data
-        data = session[self._config['SESSION_USER_ID_KEY']]
+        data = session[self._config['IDENTITY_TOKEN_NAME']]
 
         if isinstance(duration, int):
             duration = timedelta(seconds=duration)
@@ -388,7 +396,7 @@ class IdentityManager(object):
         try:
             expires = datetime.utcnow() + duration
         except TypeError:
-            raise Exception('COOKIE_DURATION must be a datetime.timedelta, instead got: {0}'.format(duration))
+            raise Exception('Duration must be a datetime.timedelta, instead got: {0}'.format(duration))
 
         # actually set it
         response.set_cookie(cookie_name, value=data, expires=expires, domain=domain, path=path, secure=secure,

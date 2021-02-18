@@ -301,7 +301,7 @@ class IdentityStore(object):
 
 class PonyIdentityStore(IdentityStore, PonyStore):
     """
-    A Pony ORM identity store implementation for IdentityManager.
+    A Pony ORM identity store implementation of `IdentityStore` for IdentityManager.
     """
 
     def __init__(self, db, user_model, role_model):
@@ -375,7 +375,7 @@ class SQLAlchemyStore(Store):
 
 class SQLAlchemyIdentityStore(IdentityStore, SQLAlchemyStore):
     """
-    A SQLAlchemy identity store implementation for IdentityManager.
+    A SQLAlchemy identity store implementation of `IdentityStore` for IdentityManager.
     """
 
     def __init__(self, db, user_model, role_model):

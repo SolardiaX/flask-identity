@@ -29,103 +29,148 @@ default_config = {
     #: Default: ``'/'``.
     'POST_LOGOUT_VIEW': '/',
 
-    #: A set of HTTP methods which are exempt from `login_required`.
-    #: Default: ``'OPTIONS'``.
-    'EXEMPT_METHODS': ['OPTIONS'],
-
     #: The identity field used to lookup user from ``DataStore``.
     #: The field must defined in ``UserMixin`` based user class.
     #: Default: ``'username'``.
     'IDENTITY_FIELD': 'username',
-    #: The field used to store user token in session or request.
+
+    #: The name used to store user token in request & session.
     #: Default: ``'token'``.
-    'TOKEN_FIELD': 'token',
-    #: The form field used to mark whether enable "remember me".
-    #: Default: ``'remember'``
-    'REMEBER_FIELD': 'remember',
-    #: The form field used to store the url parameter when redirecting to the login view.
-    #: Default: ``'next'``
-    'NEXT_FIELD': 'next',
+    'IDENTITY_TOKEN_NAME': 'token',
 
-    #: Specifies the default "remember me" value used when logging in a user.
+    #: Specifies whether should remember user when logging in.
     #: Default: ``False``.
-    'DEFAULT_REMEMBER_ME': False,
-
-    #: The name of the "remember me" cookie.
-    #: Default: ``'remember_me'``.
-    'COOKIE_NAME': 'remember_me',
-    #: The default time before the "remember me" cookie expires.
-    #: Default: ``365 days``.
-    'COOKIE_DURATION': timedelta(days=365),
-    #: Whether the "remember me" cookie requires "Secure" attribute.
-    #: Default: ``None``.
-    'COOKIE_SECURE': None,
-    #: The default domain name of the "remember me" cookie.
-    #: Default: ``None``.
-    'COOKIE_DOMAIN': None,
-    #: The default path of the "remember me" cookie.
-    #: Default: ``'/'``.
-    'COOKIE_PATH': "/",
-    #: Whether the "remember me" cookie uses HttpOnly or not.
-    #: Default: ``False``.
-    'COOKIE_HTTPONLY': False,
-    #: Whether the "remember me" cookie will be refreshed by each request.
-    #: #: Default: ``False``.
-    'COOKIE_REFRESH_EACH_REQUEST': False,
-
-    #: The id used to identity user in session.
-    #: Default: ``'user_id'``.
-    'SESSION_USER_ID_KEY': 'user_id',
-    #: The mode to use session protection in.
-    #: This can be either ``'basic'`` (the default) or ``'strong'``, or ``None`` to disable it.
-    #: Default: ``'basic'``.
-    'SESSION_PROTECTION': 'basic',
-    #: The key to store "remember" stats in session.
-    #: Default: ``'remember'``.
-    'SESSION_REMEBER_KEY': 'remember',
-    #: The key to store "remember_seconds" stats in session.
-    #: Default: ``'remember_seconds'``.
-    'SESSION_REMEBER_SECONDS_KEY': 'remember_seconds',
-    #: The key to store "fresh" stats in session.
-    #: Default: ``'_fresh'``.
-    'SESSION_FRESH_KEY': '_fresh',
-    #: The key to store session identity in session.
-    #: Default: ``'_sid'``.
-    'SESSION_ID_KEY': '_sid',
+    'REMEMBER_ME': False,
 
     #: The page the user is attempting to access is stored in the session
     #: or a url parameter when redirecting to the login view; This can be either
     #: ``'session'`` (the default) or ``'request'``.
     #: Default: ``'request'``.
     'NEXT_STORE': 'request',
+
     #: The key to store the source url when redirecting to the login view.
     #: The key will be used as url parameter in request or key in session.
     #: Default: ``'_next'``.
     'NEXT_KEY': '_next',
 
-    #: The salt used to encrypt request or cookie token.
+    #: The salt used to encrypt session, request or cookie token.
     #: If this value is ``None`` (the default), then will use ``SECRET_KEY`` as salt
     #: to encrypt token.
+    #: Strongly recommend set it to a different value for more security.
     #: Default: ``None``.
     'TOKEN_SALT': None,
+
+    #: The default time before the token expires.
+    #: It's also used as the duration for "remember me" cookie.
+    #: Default: ``365 days``.
+    'TOKEN_DURATION': timedelta(days=365),
+
+    #: The custom identity data store to use. This can be either ``'pony' | 'sqlalchemy'``,
+    #: or a custom class implement from ``IdentityStore`` and ``Store``.
+    #: Default: ``None``
+    'DATASTORE_ADAPTER': 'None',
+
+    #: The form field used to mark whether enable "remember me".
+    #: Default: ``'remember'``
+    'FORM_REMEBER_FIELD': 'remember',
+
+    #: The form field used to store the url parameter when redirecting to the login view.
+    #: Default: ``'next'``
+    'FORM_NEXT_FIELD': 'next',
+
+    #: The name of the "remember me" cookie.
+    #: Default: ``'remember_me'``.
+    'COOKIE_NAME': 'remember_me',
+
+    #: The session key to store cookie remember duration.
+    #: It will be used when user login in.
+    #: Default: ``'remember_seconds'``.
+    'COOKIE_DURATION_SESSION_KEY': 'remember_seconds',
+
+    #: The key to store "remember" stats in session.
+    #: Default: ``'remember'``.
+    'COOKIE_SESSION_STATE_KEY': 'remember',
+
+    #: Whether the "remember me" cookie requires "Secure" attribute.
+    #: Default: ``None``.
+    'COOKIE_SECURE': None,
+
+    #: The default domain name of the "remember me" cookie.
+    #: Default: ``None``.
+    'COOKIE_DOMAIN': None,
+
+    #: The default path of the "remember me" cookie.
+    #: Default: ``'/'``.
+    'COOKIE_PATH': "/",
+
+    #: Whether the "remember me" cookie uses HttpOnly or not.
+    #: Default: ``False``.
+    'COOKIE_HTTPONLY': False,
+
+    #: Whether the "remember me" cookie will be refreshed by each request.
+    #: Default: ``False``.
+    'COOKIE_REFRESH_EACH_REQUEST': False,
+
+    #: The mode to use session protection in.
+    #: This can be either ``'basic'`` (the default) or ``'strong'``, or ``None`` to disable it.
+    #: Default: ``'basic'``.
+    'SESSION_PROTECTION': 'basic',
+
+    #: The key to store "fresh" stats in session.
+    #: Default: ``'_fresh'``.
+    'SESSION_FRESH_KEY': '_fresh',
+
+    #: The key to store session identity in session.
+    #: Default: ``'_sid'``.
+    'SESSION_ID_KEY': '_sid',
+
     #: The key to pass the token in HTTP request header.
-    #: Default: ``'X-IdentityManager-Auth'``
-    'TOKEN_AUTHENTICATION_HEADER': 'X-IdentityManager-Auth',
+    #: Default: ``'X-Identity-Auth'``.
+    'REQUEST_TOKEN_AUTHENTICATION_HEADER': 'X-Identity-Auth',
+
     #: The parameter key to pass the token in HTTP request url.
     #: Default: ``'iauth'``.
-    'TOKEN_AUTHENTICATION_ARG': 'iauth',
+    'REQUEST_TOKEN_AUTHENTICATION_ARG': 'iauth',
 
-    #: Specifies the name for the Flask-Identity blueprint.
+    #: Specifies whether use build-in blueprint for user login and logout.
+    #: Default: ``True``.
+    'BLUEPRINT_ENABLED': True,
+
+    #: Specifies the name for the build-in blueprint.
     #: Default: ``'identity'``.
     'BLUEPRINT_NAME': 'identity',
+
+    #: Specifies the url prefix for the build-in blueprint.
+    #: Default: ``'/identity'``.
     'BLUEPRINT_URL_PREFIX': '/identity',
+
+    #: Specifies the sub domain for the build-in blueprint.
+    #: Default: ``None``.
     'BLUEPRINT_SUBDOMAIN': None,
+
+    #: Specifies the templates folder for the build-in blueprint.
+    #: Default: ``'templates'``.
     'BLUEPRINT_TEMPLATE_FOLDER': 'templates',
-    'BLUEPRINT_LOGIN_URL': "/login",
+
+    #: Specifies the "login" url for the build-in blueprint.
+    #: Default: ``'/login'``.
+    'BLUEPRINT_LOGIN_URL': '/login',
+
+    #: Specifies the http method for the "login" url of the build-in blueprint.
+    #: Default: ``['GET', 'POST']``.
     'BLUEPRINT_LOGIN_METHODS': ['GET', 'POST'],
-    'BLUEPRINT_LOGOUT_URL': "/logout",
+
+    #: Specifies the "logout" url for the build-in blueprint.
+    #: Default: ``'/logout'``.
+    'BLUEPRINT_LOGOUT_URL': '/logout',
+
+    #: Specifies the http method for the "logout" url of the build-in blueprint.
+    #: Default: ``['GET', 'POST']``.
     'BLUEPRINT_LOGOUT_METHODS': ['GET', 'POST'],
-    'BLUEPRINT_LOGIN_USER_TEMPLATE': None,
+
+    #: Specifies the template name for the "login" of the build-in blueprint.
+    #: Default: ``'user_login.html'``.
+    'BLUEPRINT_LOGIN_USER_TEMPLATE': 'user_login.html',
 
     #: List of accepted password hashes.
     #: See `Passlib CryptContext docs on Constructor Keyword ``'schemes'``
@@ -149,16 +194,9 @@ default_config = {
     #: Default: ``dict()``
     'HASH_OPTIONS': dict(),
 
-    #: The custom identity data store to use. This can be either ``'pony' | 'sqlalchemy'``,
-    #: or a custom class implement from ``IdentityStore`` and ``Store``.
-    #: Default: ``None``
-    'DATASTORE_ADAPTER': 'None',
-
-    #: The user object can be activeable or not.
-    #: This can be either a property name of ``User`` object,
-    #: or ``None`` to disable it.
-    #: Default: ``active``
-    'ACTIVEABLE': None,
+    #: A set of HTTP methods which are exempt from `login_required`.
+    #: Default: ``'OPTIONS'``.
+    'EXEMPT_METHODS': ['OPTIONS'],
 
     #: The i8n message of ``UNAUTHENTICATED``.
     #: Default: ``'UNAUTHENTICATED'``.

@@ -48,8 +48,8 @@ class NextFormMixin:
 
 
 _IDENTITY_FIELD = config_value('IDENTITY_FIELD')
-_REMEBER_FIELD = config_value('REMEBER_FIELD')
-_NEXT_FIELD = config_value('NEXT_FIELD')
+_REMEBER_FIELD = config_value('FORM_REMEBER_FIELD')
+_NEXT_FIELD = config_value('FORM_NEXT_FIELD')
 
 
 class LoginForm(BaseForm, NextFormMixin):
