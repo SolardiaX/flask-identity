@@ -71,6 +71,18 @@ These configuration are used globally across all features and should be configur
 
     Default: ``'_next'``.
 
+.. py:data:: HASH_SALT
+
+    Specifies the HMAC salt. This is required for all schemes that
+    are configured for double hashing. A good salt can be generated using:
+    ``secrets.SystemRandom().getrandbits(128)``.
+
+    If this value is ``None`` (the default), then will use ``SECRET_KEY`` as salt to encrypt hash.
+
+    Strongly recommend set it to a different value for more security.
+    
+    Defaults to ``None``.
+
 .. py:data:: TOKEN_SALT
 
     The salt used to encrypt session, request or cookie token.

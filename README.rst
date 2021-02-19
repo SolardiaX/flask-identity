@@ -25,7 +25,7 @@ Flask-Identity
 A lightweight extension & library to security Flask applications quickly and simply.
 
 About Flask-Identity
-------------------
+--------------------
 
 Flask-Identity allows you to quickly add common security mechanisms to your
 Flask application. They include:

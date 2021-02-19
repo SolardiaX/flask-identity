@@ -53,6 +53,12 @@ default_config = {
     #: Default: ``'_next'``.
     'NEXT_KEY': '_next',
 
+    #: Specifies the HMAC salt. This is required for all schemes that
+    #: are configured for double hashing. A good salt can be generated using:
+    #: ``secrets.SystemRandom().getrandbits(128)``.
+    #: Defaults to ``None``.
+    'HASH_SALT': None,
+
     #: The salt used to encrypt session, request or cookie token.
     #: If this value is ``None`` (the default), then will use ``SECRET_KEY`` as salt
     #: to encrypt token.
