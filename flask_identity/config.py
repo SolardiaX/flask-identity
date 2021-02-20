@@ -76,6 +76,14 @@ default_config = {
     #: Default: ``None``
     'DATASTORE_ADAPTER': 'None',
 
+    #: Specifies if Flask-Security should track basic user login statistics.
+    #: If set to ``True``, ensure your models have the required fields/attributes
+    #: and make sure to commit changes after calling ``login_user``.
+    #: Be sure to use `ProxyFix <http://flask.pocoo.org/docs/0.10/deploying/wsgi-standalone/#proxy-setups>`_
+    #: if you are using a proxy.
+    #: Defaults to ``False``
+    'TRACKABLE': False,
+
     #: The form field used to mark whether enable "remember me".
     #: Default: ``'remember'``
     'FORM_REMEBER_FIELD': 'remember',

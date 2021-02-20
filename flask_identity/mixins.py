@@ -114,6 +114,14 @@ class UserMixin(object):
             field: getattr(self, field)
         })
 
+    def get_security_payload(self):
+        """Serialize user object as response payload."""
+        from .utils import current_identity
+
+        field = current_identity.config_value('IDENTITY_FIELD')
+
+        return {"id": str(self.id), field: getattr(self, field)}
+
     def __eq__(self, other):
         """
         Checks the equality of two `UserMixin` objects using `get_id`.

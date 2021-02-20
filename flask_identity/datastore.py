@@ -10,6 +10,8 @@
     :license: GPL-3.0, see LICENSE for more details.
 """
 
+import uuid
+
 from .utils import config_value
 
 
@@ -172,7 +174,8 @@ class IdentityStore(object):
             # see if the role exists
             roles[i] = self.find_role(rn)
         kwargs["roles"] = roles
-
+        if hasattr(self.user_model, "uniquifier"):
+            kwargs.setdefault("uniquifier", uuid.uuid4().hex)
         return kwargs
 
     def find_user(self, *args, **kwargs):
@@ -255,7 +258,26 @@ class IdentityStore(object):
             self.save(user)
             return True
 
-        return False
+        return
+
+    def set_uniquifier(self, user, uniquifier=None):
+        """
+        Set user's authentication token uniquifier.
+        This will immediately render outstanding auth tokens invalid.
+
+        :param user: User to modify
+        :param uniquifier: Unique value - if none then uuid.uuid4().hex is used
+
+        This method is a no-op if the user model doesn't contain the attribute
+        ``uniquifier``
+        """
+        if not hasattr(user, "uniquifier"):
+            return
+        if not uniquifier:
+            uniquifier = uuid.uuid4().hex
+        user.uniquifier = uniquifier
+        # noinspection PyUnresolvedReferences
+        self.save(user)
 
     def create_role(self, **kwargs):
         """

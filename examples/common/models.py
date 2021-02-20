@@ -45,6 +45,7 @@ class Users(BaseModel, UserMixin):
     display = db.Column(db.String(50), unique=True, nullable=False)
     password = db.Column(db.String(64), nullable=False)
     active = db.Column(db.Boolean, default=True)
+    uniquifier = db.Column(db.String(64), unique=True)
     last_login_at = db.Column(db.DateTime, nullable=True)
     current_login_at = db.Column(db.DateTime, nullable=True)
     last_login_ip = db.Column(db.String(64), nullable=True)

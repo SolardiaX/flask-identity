@@ -146,6 +146,7 @@ def login():
 
     if request.is_json:
         user = current_user if current_user.is_authenticated else None
+        # noinspection PyTypeChecker
         return render_form_json_response(form, user, include_auth_token=True)
 
     if current_user.is_authenticated:

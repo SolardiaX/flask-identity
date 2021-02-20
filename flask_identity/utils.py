@@ -35,7 +35,7 @@ def login_user(user: UserMixin, remember=None, duration=None, fresh=True):
     :param user: The user object to log in.
     :type user: object
     :param remember: Whether to remember the user after their session expires.
-        Defaults to ``IDENTITY_DEFAULT_REMEMBER_ME``.
+        Defaults to ``IDENTITY_REMEMBER_ME``.
     :type remember: bool
     :param duration: The amount of time before the remember cookie expires. If
         ``None`` the value set in the settings is used. Defaults to ``None``.

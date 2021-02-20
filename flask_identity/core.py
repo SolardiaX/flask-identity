@@ -195,12 +195,13 @@ class IdentityManager(object):
         user = None
 
         # Load user from Flask Session
-        id_key = self._config['IDENTITY_TOKEN_NAME']
-        user_id = session.get(id_key)
-        if user_id is not None:
-            data = self._token_context.verify_token(user_id)
+        token = session.get(self._config['IDENTITY_TOKEN_NAME'])
+        if token is not None:
+            data = self._token_context.verify_token(token)
             if data is not None:
-                user = self._load_user_from_datastore(data[self._config['IDENTITY_FIELD']])
+                user = self._load_user_from_datastore(
+                    data[self._config['IDENTITY_FIELD']], data.get('uniquifier', None)
+                )
 
         # Load user from Remember Me Cookie or Request Loader
         if user is None:
@@ -262,9 +263,11 @@ class IdentityManager(object):
         """
         return self._datastore
 
-    def _load_user_from_datastore(self, identity_field):
+    def _load_user_from_datastore(self, identity_field, uniquifier=None):
         user = self._datastore.find_user(identity_field)
         if not user or not user.is_actived:
+            return None
+        if not uniquifier and user and hasattr(user, 'uniquifier') and getattr(user, 'uniquifier') != uniquifier:
             return None
         return user
 
@@ -278,7 +281,7 @@ class IdentityManager(object):
                     **{self._config['IDENTITY_FIELD']: identity_id}
                 )
                 session[self._config['SESSION_FRESH_KEY']] = False
-                user = self._load_user_from_datastore(identity_id)
+                user = self._load_user_from_datastore(identity_id, data.get('uniquifier', None))
                 if user is not None:
                     return user
         except Exception:
@@ -300,8 +303,8 @@ class IdentityManager(object):
         try:
             data = self._token_context.verify_token(token, ttl=self._config['TOKEN_DURATION'])
             identity_field = data[self._config['IDENTITY_FIELD']]
-            user = self._load_user_from_datastore(identity_field)
-            if user and self._hash_context.verify_context(data[self._config['IDENTITY_TOKEN_NAME']], user.password):
+            user = self._load_user_from_datastore(identity_field, data.get('uniquifier', None))
+            if user is not None:
                 return user
         except Exception:
             pass
