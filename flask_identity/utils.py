@@ -10,6 +10,7 @@
     :license: GPL-3.0, see LICENSE for more details.
 """
 
+from datetime import datetime
 from urllib.parse import parse_qsl, urlsplit, urlunsplit, urlencode
 
 # noinspection PyProtectedMember
@@ -23,7 +24,7 @@ current_user = LocalProxy(lambda: get_user())
 current_identity = LocalProxy(lambda: current_app.extensions['identity'])
 
 
-def login_user(user: UserMixin, remember=None, duration=None, fresh=True):
+def login_user(user: UserMixin, uniquifier=None, remember=None, duration=None, fresh=True):
     """
     Logs a user in. You should pass the actual user object to this. If the
     user's `is_active` property is ``False``, they will not be logged in
@@ -34,6 +35,9 @@ def login_user(user: UserMixin, remember=None, duration=None, fresh=True):
 
     :param user: The user object to log in.
     :type user: object
+    :param uniquifier: The uniquifier for isolate login session. If ``None`` will
+        use a ``uuid.hex()`` as default. Defatuls to ``None``.
+    :type uniquifier: str
     :param remember: Whether to remember the user after their session expires.
         Defaults to ``IDENTITY_REMEMBER_ME``.
     :type remember: bool
@@ -47,13 +51,31 @@ def login_user(user: UserMixin, remember=None, duration=None, fresh=True):
     if not user.is_actived:
         return False
 
+    if config_value('TRACKABLE'):
+        remote_addr = request.remote_addr or None  # make sure it is None
+
+        old_current_login, new_current_login = (
+            user.current_login_at,
+            datetime.now()
+        )
+        old_current_ip, new_current_ip = user.current_login_ip, remote_addr
+
+        user.last_login_at = old_current_login or new_current_login
+        user.current_login_at = new_current_login
+        user.last_login_ip = old_current_ip
+        user.current_login_ip = new_current_ip
+        user.login_count = user.login_count + 1 if user.login_count else 1
+
+        current_identity.datastore.save(user)
+
+    if hasattr(user, 'uniquifier'):
+        current_identity.datastore.set_uniquifier(user, uniquifier)
+
     user_id = getattr(user, config_value('IDENTITY_FIELD'))
     remember = config_value('REMEMBER_ME') if remember is None else remember
 
     # noinspection PyProtectedMember
-    session[config_value('IDENTITY_TOKEN_NAME')] = current_identity._token_context.generate_token(
-        **{config_value('IDENTITY_FIELD'): user_id}
-    )
+    session[config_value('IDENTITY_TOKEN_NAME')] = user.get_auth_token()
 
     # noinspection PyProtectedMember
     session[config_value('SESSION_ID_KEY')] = current_identity._session_identifier_generator()
