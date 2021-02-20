@@ -10,7 +10,7 @@ These configuration are used globally across all features and should be configur
 
 .. py:data:: SECRET_KEY
 
-    This is actually part of Flask - but is used by Flask-Security to sign all tokens.
+    This is actually part of Flask - but is used by Flask-Identity to sign all tokens.
     It is critical this is set to a strong value.
 
     For python3 consider using: ``secrets.token_urlsafe()``
@@ -109,7 +109,7 @@ These configuration are used globally across all features and should be configur
 
 .. py:data:: TRACKABLE
 
-    Specifies if Flask-Security should track basic user login statistics.
+    Specifies if Flask-Identity should track basic user login statistics.
     If set to ``True``, ensure your models have the required fields/attributes
     and make sure to commit changes after calling ``login_user``.
     Be sure to use `ProxyFix <http://flask.pocoo.org/docs/0.10/deploying/wsgi-standalone/#proxy-setups>`_

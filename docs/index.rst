@@ -27,7 +27,7 @@ Currently there are so many security middleware for Flask, most them depends on 
 It's easy to start but hard to configure because some options are defined by the dependencies.
 
 Flask-Identity is a lightweight security extension with all-in-one configurations and less third dependencies,
-direct using some seccessful open-source libraries codes:
+some codes are direct merged from other successful open-source libraries::
 
 * `Flask-Login <https://flask-login.readthedocs.org/en/latest/>`_
 * `Flask-Security <https://flask-security.readthedocs.org/en/latest/>`_

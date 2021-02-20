@@ -18,7 +18,7 @@ If you have a 'big idea' - please file an issue first so it can be discussed
 prior to you spending a lot of time developing. New features need to be generally
 useful - if your feature has limited applicability, consider making a small
 change that ENABLES your feature, rather than trying to get the entire feature
-into Flask-Security.
+into Flask-Identity.
 
 .. _bug reports: https://github.com/solardiax/flask-identity/issues
 
@@ -55,7 +55,7 @@ these steps:
 
      $ git checkout -b name-of-your-bugfix-or-feature
 
-  #.  Change directory to flask_security::
+  #.  Change directory to flask_identity::
 
         $ cd flask_identity
 
@@ -113,7 +113,7 @@ Then in your browser navigate to::
 
 Testing
 -------
-Unit tests are critical since Flask-Security is a piece of middleware. They also
+Unit tests are critical since Flask-Identity is a piece of middleware. They also
 help other contributors understand any subtleties in the code and edge conditions that
 need to be handled.
 
