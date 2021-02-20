@@ -31,7 +31,7 @@ Flask-Identity allows you to quickly add common security mechanisms to your
 Flask application. They include:
 
 1. Session based authentication
-2. Role and Permission management
+2. User and role management
 3. Password hashing
 4. Basic HTTP authentication
 5. Token based authentication
