@@ -277,12 +277,10 @@ class IdentityManager(object):
             data = self._token_context.verify_token(cookie, ttl=self._config['TOKEN_DURATION'])
             identity_id = data[self._config['IDENTITY_FIELD']]
             if identity_id is not None:
-                session[self._config['IDENTITY_TOKEN_NAME']] = self._token_context.generate_token(
-                    **{self._config['IDENTITY_FIELD']: identity_id}
-                )
-                session[self._config['SESSION_FRESH_KEY']] = False
                 user = self._load_user_from_datastore(identity_id, data.get('uniquifier', None))
                 if user is not None:
+                    session[self._config['IDENTITY_TOKEN_NAME']] = user.get_auth_token()
+                    session[self._config['SESSION_FRESH_KEY']] = False
                     return user
         except Exception:
             pass

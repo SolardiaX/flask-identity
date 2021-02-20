@@ -108,10 +108,12 @@ class UserMixin(object):
         from .utils import current_identity
 
         field = current_identity.config_value('IDENTITY_FIELD')
+        uniquifier = getattr(self, 'uniquifier') if hasattr(self, 'uniquifier') else None
 
         # noinspection PyProtectedMember
         return current_identity._token_context.generate_token({
-            field: getattr(self, field)
+            field: getattr(self, field),
+            'uniquifier': uniquifier
         })
 
     def get_security_payload(self):
@@ -119,8 +121,9 @@ class UserMixin(object):
         from .utils import current_identity
 
         field = current_identity.config_value('IDENTITY_FIELD')
+        uniquifier = getattr(self, 'uniquifier') if hasattr(self, 'uniquifier') else None
 
-        return {"id": str(self.id), field: getattr(self, field)}
+        return {"id": str(self.id), field: getattr(self, field), 'uniquifier': uniquifier}
 
     def __eq__(self, other):
         """

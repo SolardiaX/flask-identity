@@ -88,13 +88,8 @@ def render_form_json_response(form, user, include_auth_token=False, error_status
             payload["user"] = user.get_security_payload()
 
             if include_auth_token:
-                # view wants to return auth_token - check behavior config
-                if (
-                        config_value("BACKWARDS_COMPAT_AUTH_TOKEN")
-                        or "include_auth_token" in request.args
-                ):
-                    token = user.get_auth_token()
-                    payload["user"]["authentication_token"] = token
+                token = user.get_auth_token()
+                payload["user"]["authentication_token"] = token
 
         # Return csrf_token on each JSON response - just as every form
         # has it rendered.
