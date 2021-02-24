@@ -10,10 +10,11 @@
     :license: GPL-3.0, see LICENSE for more details.
 """
 
-from flask import request, after_this_request, jsonify, url_for, Blueprint, session
+from flask import request, after_this_request, jsonify, url_for, Blueprint
 from flask_wtf import csrf
 from werkzeug.datastructures import MultiDict
 
+from .decorators import unauth_csrf
 from .compats import get_quart_status
 from .utils import (
     current_user,
@@ -100,6 +101,7 @@ def render_form_json_response(form, user, include_auth_token=False, error_status
     return render_json(payload, code, None)
 
 
+@unauth_csrf(fall_through=True)
 def login():
     """
     View function for login view
@@ -154,6 +156,7 @@ def login():
         )
 
 
+@unauth_csrf(fall_through=True)
 def logout():
     """
     View function which handles a logout request.

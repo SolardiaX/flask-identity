@@ -13,11 +13,15 @@
 from collections import namedtuple
 from functools import wraps
 
-from flask import request
+# noinspection PyProtectedMember
+from flask import request, _request_ctx_stack
+from werkzeug.local import LocalProxy
 
-from .utils import config_value, current_identity, current_user
+from .utils import config_value, current_identity, current_user, current_app
 
 BasicAuth = namedtuple("BasicAuth", "username, password")
+
+_csrf = LocalProxy(lambda: current_app.extensions["csrf"])
 
 
 def _check_token():
@@ -185,5 +189,52 @@ def roles_accepted(*role_names):
             return view_function(*args, **kwargs)
 
         return decorator
+
+    return wrapper
+
+
+def unauth_csrf(fall_through=False):
+    """Decorator for endpoints that don't need authentication
+    but do want CSRF checks (available via Header rather than just form).
+    This is required when setting *WTF_CSRF_CHECK_DEFAULT* = **False** since in that
+    case, without this decorator, the form validation will attempt to do the CSRF
+    check, and that will fail since the csrf-token is in the header (for pure JSON
+    requests).
+
+    This decorator does nothing unless Flask-WTF::CSRFProtect has been initialized.
+
+    This decorator does nothing if *WTF_CSRF_ENABLED* == **False**.
+
+    This decorator will always require CSRF if the caller is authenticated.
+
+    This decorator will suppress CSRF if caller isn't authenticated and has set the
+    *SECURITY_CSRF_IGNORE_UNAUTH_ENDPOINTS* config variable.
+
+    :param fall_through: if set to True, then if CSRF fails here - simply keep going.
+        This is appropriate if underlying view is form based and once the form is
+        instantiated, the csrf_token will be available.
+        Note that this can mask some errors such as 'The CSRF session token is missing.'
+        meaning that the caller didn't send a session cookie and instead the caller
+        might get a 'The CSRF token is missing.' error.
+    """
+
+    def wrapper(fn):
+        @wraps(fn)
+        def decorated(*args, **kwargs):
+            if not current_app.config.get("WTF_CSRF_ENABLED", False) or not current_app.extensions.get("csrf", None):
+                return fn(*args, **kwargs)
+
+            if config_value("CSRF_IGNORE_UNAUTH_ENDPOINTS") and not current_user.is_authenticated:
+                _request_ctx_stack.top.fs_ignore_csrf = True
+            else:
+                try:
+                    _csrf.protect()
+                except:
+                    if not fall_through:
+                        raise
+
+            return fn(*args, **kwargs)
+
+        return decorated
 
     return wrapper
