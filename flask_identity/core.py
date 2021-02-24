@@ -59,6 +59,8 @@ class IdentityManager(object):
         self._unauthz_handler = None
         self._unauthn_handler = None
         self._template_render = render_template
+        self._user_model = user_model
+        self._role_model = role_model
 
         if app is not None and user_model is not None and role_model is not None:
             self.init_app(app, db, user_model, role_model, register_blueprint, **kwargs)
@@ -83,12 +85,17 @@ class IdentityManager(object):
         """
         if db is None:
             raise Exception("Missing db for Identity.")
-        if user_model is None:
+        if user_model is None and self._user_model is None:
             raise Exception("Missing user_model for Identity.")
-        if role_model is None:
+        if role_model is None and self._role_model is None:
             raise Exception("Missing role_model for Identity.")
         if register_blueprint is None:
             register_blueprint = self._register_blueprint
+
+        if user_model is not None:
+            self._user_model = user_model
+        if role_model is not None:
+            self._role_model = role_model
 
         for key, value in self._kwargs.items():
             kwargs.setdefault(key, value)
@@ -111,15 +118,15 @@ class IdentityManager(object):
 
         if adapter == 'pony':
             from .datastore import PonyIdentityStore
-            self._datastore = PonyIdentityStore(db, user_model, role_model)
+            self._datastore = PonyIdentityStore(db, self._user_model, self._role_model)
         elif adapter == 'sqlalchemy':
             from .datastore import SQLAlchemyIdentityStore
-            self._datastore = SQLAlchemyIdentityStore(db, user_model, role_model)
+            self._datastore = SQLAlchemyIdentityStore(db, self._user_model, self._role_model)
         elif adapter == 'mongoengine':
             from .datastore import MongoEngineIdentityStore
-            self._datastore = MongoEngineIdentityStore(db, user_model, role_model)
+            self._datastore = MongoEngineIdentityStore(db, self._user_model, self._role_model)
         if isclass(adapter):
-            self._datastore = adapter(db, user_model, role_model)
+            self._datastore = adapter(db, self._user_model, self._role_model)
 
         self._hash_context = HashContext(app)
         self._token_context = TokenContext(app)
