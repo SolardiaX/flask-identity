@@ -102,7 +102,7 @@ These configuration are used globally across all features and should be configur
 .. py:data:: DATASTORE_ADAPTER
 
     The custom identity data store to use.
-    This can be either ``'pony' | 'sqlalchemy'``,
+    This can be either ``'pony' | 'sqlalchemy' | 'mongoengine'``,
     or a custom class implement from ``IdentityStore`` and ``Store``.
 
     Default: ``None``.

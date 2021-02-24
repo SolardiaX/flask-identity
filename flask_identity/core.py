@@ -115,6 +115,9 @@ class IdentityManager(object):
         elif adapter == 'sqlalchemy':
             from .datastore import SQLAlchemyIdentityStore
             self._datastore = SQLAlchemyIdentityStore(db, user_model, role_model)
+        elif adapter == 'mongoengine':
+            from .datastore import MongoEngineIdentityStore
+            self._datastore = MongoEngineIdentityStore(db, user_model, role_model)
         if isclass(adapter):
             self._datastore = adapter(db, user_model, role_model)
 

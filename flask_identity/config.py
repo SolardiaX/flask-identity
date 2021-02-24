@@ -71,7 +71,7 @@ default_config = {
     #: Default: ``365 days``.
     'TOKEN_DURATION': timedelta(days=365),
 
-    #: The custom identity data store to use. This can be either ``'pony' | 'sqlalchemy'``,
+    #: The custom identity data store to use. This can be either ``'pony' | 'sqlalchemy' | 'mongoengine'``,
     #: or a custom class implement from ``IdentityStore`` and ``Store``.
     #: Default: ``None``
     'DATASTORE_ADAPTER': 'None',

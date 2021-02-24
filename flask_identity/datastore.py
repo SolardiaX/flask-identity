@@ -399,7 +399,6 @@ class SQLAlchemyIdentityStore(IdentityStore, SQLAlchemyStore):
     """
     A SQLAlchemy identity store implementation of `IdentityStore` for IdentityManager.
     """
-
     def __init__(self, db, user_model, role_model):
         IdentityStore.__init__(self, user_model, role_model)
         SQLAlchemyStore.__init__(self, db)
@@ -415,3 +414,48 @@ class SQLAlchemyIdentityStore(IdentityStore, SQLAlchemyStore):
             kwargs.update({config_value('IDENTITY_FIELD'): args[0]})
 
         return self.get(self.role_model, **kwargs)
+
+
+class MongoEngineStore(Store):
+    """
+    Implements the DbAdapter interface to find, add, update and delete
+    database objects using MongoEngine.
+    """
+    def add(self, obj):
+        return obj.save()
+
+    def commit(self):
+        pass
+
+    def delete(self, obj):
+        return obj.delete()
+
+    def find(self, objectclass, **kwargs):
+        return objectclass.objects(**kwargs).all()
+
+    def get(self, objectclass, **kwargs):
+        return objectclass.objects(**kwargs).first()
+
+    def save(self, obj):
+        return obj.save()
+
+
+class MongoEngineIdentityStore(IdentityStore, MongoEngineStore):
+    """
+    A MongoEngine identity store implementation of `IdentityStore` for IdentityManager.
+    """
+    def __init__(self, db, user_model, role_model):
+        IdentityStore.__init__(self, user_model, role_model)
+        MongoEngineStore.__init__(self, db)
+
+    def find_user(self, *args, **kwargs):
+        if len(args) > 0:
+            kwargs.update({config_value('IDENTITY_FIELD'): args[0]})
+
+        return self.user_model.objects(**kwargs).first()
+
+    def find_role(self, *args, **kwargs):
+        if len(args) > 0:
+            kwargs.update({config_value('IDENTITY_FIELD'): args[0]})
+
+        return self.role_model.objects(**kwargs).first()

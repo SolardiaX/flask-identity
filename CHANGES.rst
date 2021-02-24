@@ -3,6 +3,9 @@ Flask-Identity Changelog
 
 Here you can see the full list of changes between each Flask-Identity release.
 
+Version 1.0.2
+-------------
+* Add support for MongoEngine.
 
 Version 1.0.1
 -------------
