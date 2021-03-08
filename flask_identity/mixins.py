@@ -125,6 +125,13 @@ class UserMixin(object):
 
         return {"id": str(self.id), field: getattr(self, field), 'uniquifier': uniquifier}
 
+    def verify_password(self, passwd):
+        """Verify password"""
+        from .utils import current_identity
+
+        # noinspection PyProtectedMember
+        return current_identity._hash_context.verify_context(passwd, self.password)
+
     def __eq__(self, other):
         """
         Checks the equality of two `UserMixin` objects using `get_id`.

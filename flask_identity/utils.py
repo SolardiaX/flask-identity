@@ -22,6 +22,18 @@ from .mixins import UserMixin
 
 current_user = LocalProxy(lambda: get_user())
 current_identity = LocalProxy(lambda: current_app.extensions['identity'])
+# noinspection PyProtectedMember
+localize_callback = LocalProxy(lambda: current_identity._i18n_domain.gettext)
+
+
+def _(translate):
+    """Identity function to mark strings for translation."""
+    return translate
+
+
+def get_message(key, **kwargs):
+    rv = config_value("MSG_" + key)
+    return localize_callback(rv[0], **kwargs), rv[1]
 
 
 def login_user(user: UserMixin, uniquifier=None, remember=None, duration=None, fresh=True):
@@ -71,7 +83,6 @@ def login_user(user: UserMixin, uniquifier=None, remember=None, duration=None, f
     if hasattr(user, 'uniquifier'):
         current_identity.datastore.set_uniquifier(user, uniquifier)
 
-    user_id = getattr(user, config_value('IDENTITY_FIELD'))
     remember = config_value('REMEMBER_ME') if remember is None else remember
 
     # noinspection PyProtectedMember

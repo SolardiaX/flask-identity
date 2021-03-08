@@ -1,0 +1,48 @@
+# English (United States) translations for PROJECT.
+# Copyright (C) 2021 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2021-03-08 14:35+0800\n"
+"PO-Revision-Date: 2021-03-08 15:05+0800\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: en_US\n"
+"Language-Team: en_US <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.0\n"
+
+#: flask_identity/core.py:108
+msgid "UNAUTHENTICATED"
+msgstr "UNAUTHENTICATED"
+
+#: flask_identity/core.py:112
+msgid "UNAUTHORIZED"
+msgstr "UNAUTHORIZED"
+
+#: flask_identity/core.py:116
+msgid "INVALID REDIRECT URL"
+msgstr "INVALID REDIRECT URL"
+
+#: flask_identity/core.py:120
+msgid "ANONYMOUS USER REQUIRED"
+msgstr "ANONYMOUS USER REQUIRED"
+
+#: flask_identity/core.py:124
+msgid "USER DOES NOT EXIST"
+msgstr "USER DOES NOT EXIST"
+
+#: flask_identity/core.py:128
+msgid "INVALID PASSWORD"
+msgstr "INVALID PASSWORD"
+
+#: flask_identity/core.py:132
+msgid "ACCOUNT IS DISABLED"
+msgstr "ACCOUNT IS DISABLED"
+

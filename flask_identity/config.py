@@ -10,6 +10,7 @@
     :license: GPL-3.0, see LICENSE for more details.
 """
 
+import pkg_resources
 from datetime import timedelta
 
 default_config = {
@@ -212,19 +213,11 @@ default_config = {
     #: Default: ``'OPTIONS'``.
     'EXEMPT_METHODS': ['OPTIONS'],
 
-    #: The i8n message of ``UNAUTHENTICATED``.
-    #: Default: ``'UNAUTHENTICATED'``.
-    'MSG_UNAUTHENTICATED': 'UNAUTHENTICATED',
+    #: Specifies the name for domain used for translations.
+    #: Default: ``'flask_identity'``.
+    'I18N_DOMAIN': 'flask_identity',
 
-    #: The i8n message of ``UNAUTHORIZED``.
-    #: Default: ``'UNAUTHORIZED'``.
-    'MSG_UNAUTHORIZED': 'UNAUTHORIZED',
-
-    #: The i8n message of ``Invalid Redirect Url``.
-    #: Default: ``INVALID REDIRECT URL``.
-    'MSG_INVALID_REDIRECT': 'INVALID REDIRECT URL',
-
-    #: The i8n message of ``Anonymous User Required``.
-    #: Default: ``ANONYMOUS USER REQUIRED``.
-    'MSG_ANONYMOUS_USER_REQUIRED': 'ANONYMOUS USER REQUIRED'
+    #: Specifies the directory containing the MO files used for translations.
+    #: Default: ``[PATH_LIB]/flask_identity/translations``.
+    'I18N_DIRNAME': pkg_resources.resource_filename('flask_identity', 'translations'),
 }

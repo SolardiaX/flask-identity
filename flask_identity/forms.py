@@ -14,7 +14,7 @@ from flask import flash, request, session
 from flask_wtf import FlaskForm
 from wtforms import HiddenField, PasswordField, StringField, BooleanField, ValidationError
 from wtforms.validators import DataRequired
-from .utils import validate_redirect_url, config_value, current_identity, hash_password
+from .utils import validate_redirect_url, config_value, current_identity, get_message
 
 
 class BaseForm(FlaskForm):
@@ -83,9 +83,15 @@ class LoginForm(BaseForm, NextFormMixin):
         self.user = current_identity.datastore.find_user(**{_IDENTITY_FIELD: self.data[_IDENTITY_FIELD]})
 
         if self.user is None:
-            getattr(self, _IDENTITY_FIELD).errors.append('USER_DOES_NOT_EXIST')
-            hash_password(self.password.data)
+            getattr(self, _IDENTITY_FIELD).errors.append(get_message('USER_DOES_NOT_EXIST'))
+            return False
 
+        if not self.user.verify_password(self.password.data):
+            self.password.errors.append(get_message('INVALID_PASSWORD'))
+            return False
+
+        if not self.user.is_actived:
+            getattr(self, _IDENTITY_FIELD).errors.append(get_message('DISABLED_ACCOUNT'))
             return False
 
         return True

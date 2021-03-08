@@ -329,26 +329,14 @@ Message
 
 These configuration are used in i8n response messages.
 
-.. py:data:: MSG_UNAUTHENTICATED
+.. py:data:: I18N_DOMAIN
 
-    The i8n message of ``UNAUTHENTICATED``.
+    Specifies the name for domain used for translations.
 
-    Default: ``'UNAUTHENTICATED'``.
+    Default: ``'flask_identity'``.
 
-.. py:data:: MSG_UNAUTHORIZED
+.. py:data:: I18N_DIRNAME
 
-    The i8n message of ``UNAUTHORIZED``.
+    Specifies the directory containing the MO files used for translations.
 
-    Default: ``'UNAUTHORIZED'``.
-
-.. py:data:: MSG_INVALID_REDIRECT
-
-    The i8n message of ``Invalid Redirect Url``.
-
-    Default: ``'MSG_INVALID_REDIRECT'``.
-
-.. py:data:: MSG_ANONYMOUS_USER_REQUIRED
-
-    The i8n message of ``Anonymous User Required``.
-
-    Default: ``'ANONYMOUS USER REQUIRED'``.
+    Default: `[PATH_LIB]/flask_identity/translations``.

@@ -17,7 +17,7 @@ from hashlib import sha512
 from inspect import isclass
 
 # noinspection PyProtectedMember
-from flask import _request_ctx_stack, request, session, redirect, abort, render_template
+from flask import _request_ctx_stack, request, session, redirect, abort, render_template, current_app
 from werkzeug.routing import BuildError
 
 from ._hash_context import HashContext
@@ -25,8 +25,9 @@ from ._token_context import TokenContext
 from .datastore import IdentityStore
 from .config import default_config
 from .mixins import AnonymousUserMixin
-from .utils import get_config, get_url, get_user, clear_cookie, base64_encode_param
+from .utils import _, get_config, get_url, get_user, clear_cookie, base64_encode_param
 from .views import render_json, url_for_identity, create_blueprint
+from .babels import get_i18n_domain, have_babel
 
 logger = logging.getLogger(__name__)
 
@@ -61,6 +62,7 @@ class IdentityManager(object):
         self._template_render = render_template
         self._user_model = user_model
         self._role_model = role_model
+        self._i18n_domain = None
 
         if app is not None and user_model is not None and role_model is not None:
             self.init_app(app, db, user_model, role_model, register_blueprint, **kwargs)
@@ -99,6 +101,36 @@ class IdentityManager(object):
 
         for key, value in self._kwargs.items():
             kwargs.setdefault(key, value)
+
+        default_config.update({
+            #: The i8n message of ``UNAUTHENTICATED``.
+            #: Default: ``'UNAUTHENTICATED'``.
+            'MSG_UNAUTHENTICATED': (_('UNAUTHENTICATED'), 'error'),
+
+            #: The i8n message of ``UNAUTHORIZED``.
+            #: Default: ``'UNAUTHORIZED'``.
+            'MSG_UNAUTHORIZED': (_('UNAUTHORIZED'), 'error'),
+
+            #: The i8n message of ``Invalid Redirect Url``.
+            #: Default: ``INVALID REDIRECT URL``.
+            'MSG_INVALID_REDIRECT': (_('INVALID REDIRECT URL'), 'error'),
+
+            #: The i8n message of ``Anonymous User Required``.
+            #: Default: ``ANONYMOUS USER REQUIRED``.
+            'MSG_ANONYMOUS_USER_REQUIRED': (_('ANONYMOUS USER REQUIRED'), 'error'),
+
+            #: The i8n message of ``User Does Not Exist``.
+            #: Default: ``USER DOES NOT EXIST``.
+            'MSG_USER_DOES_NOT_EXIST': (_('USER DOES NOT EXIST'), 'error'),
+
+            #: The i8n message of ``Invalid password``.
+            #: Default: ``INVALID PASSWORD``.
+            'MSG_INVALID_PASSWORD': (_('INVALID PASSWORD'), 'error'),
+
+            #: The i8n message of ``Account Is Disabled``.
+            #: Default: ``ACCOUNT IS DISABLED``.
+            'MSG_DISABLED_ACCOUNT': (_('ACCOUNT IS DISABLED'), 'error'),
+        })
 
         for key, value in default_config.items():
             app.config.setdefault('IDENTITY_' + key.upper(), value)
@@ -144,6 +176,24 @@ class IdentityManager(object):
 
         if register_blueprint:
             create_blueprint(self, __name__, app.json_encoder)
+
+        self._i18n_domain = get_i18n_domain(app)
+
+        @app.before_first_request
+        def _register_i18n():
+            # This is only not registered if Flask-Babel isn't installed...
+            if "_" not in app.jinja_env.globals:
+                current_app.jinja_env.globals["_"] = self._i18n_domain.gettext
+            # Register so other packages can reference our translations.
+            current_app.jinja_env.globals["_fsdomain"] = self._i18n_domain.gettext
+
+        @app.before_first_request
+        def check_babel():
+            # Verify that if Flask-Babel is installed
+            if have_babel() and "babel" not in app.extensions:
+                raise ValueError(
+                    "Flask-Babel is installed but not initialized"
+                )
 
     def _add_ctx_processor(self, endpoint, fn):
         group = self._context_processors.setdefault(endpoint, [])
