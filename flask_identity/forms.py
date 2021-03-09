@@ -47,12 +47,11 @@ class NextFormMixin:
             raise ValidationError(config_value("MSG_INVALID_REDIRECT"))
 
 
-_IDENTITY_FIELD = config_value('IDENTITY_FIELD')
-_REMEBER_FIELD = config_value('FORM_REMEBER_FIELD')
-_NEXT_FIELD = config_value('FORM_NEXT_FIELD')
-
-
 class LoginForm(BaseForm, NextFormMixin):
+    _IDENTITY_FIELD = config_value('IDENTITY_FIELD')
+    _REMEBER_FIELD = config_value('FORM_REMEBER_FIELD')
+    _NEXT_FIELD = config_value('FORM_NEXT_FIELD')
+
     """
     The default login form
     """
@@ -70,20 +69,20 @@ class LoginForm(BaseForm, NextFormMixin):
         if not self.next.data:
             next_key = config_value('NEXT_KEY')
             if config_value('NEXT_STORE') == 'request':
-                getattr(self, _NEXT_FIELD).data = request.args.get(next_key, "")
+                getattr(self, self._NEXT_FIELD).data = request.args.get(next_key, "")
             else:
-                getattr(self, _NEXT_FIELD).data = session.get(next_key, "")
+                getattr(self, self._NEXT_FIELD).data = session.get(next_key, "")
 
-        getattr(self, _REMEBER_FIELD).default = config_value("DEFAULT_REMEMBER_ME")
+        getattr(self, self._REMEBER_FIELD).default = config_value("DEFAULT_REMEMBER_ME")
 
     def validate(self):
         if not super().validate():
             return False
 
-        self.user = current_identity.datastore.find_user(**{_IDENTITY_FIELD: self.data[_IDENTITY_FIELD]})
+        self.user = current_identity.datastore.find_user(**{self._IDENTITY_FIELD: self.data[self._IDENTITY_FIELD]})
 
         if self.user is None:
-            getattr(self, _IDENTITY_FIELD).errors.append(get_message('USER_DOES_NOT_EXIST')[0])
+            getattr(self, self._IDENTITY_FIELD).errors.append(get_message('USER_DOES_NOT_EXIST')[0])
             return False
 
         if not self.user.verify_password(self.password.data):
@@ -91,7 +90,7 @@ class LoginForm(BaseForm, NextFormMixin):
             return False
 
         if not self.user.is_actived:
-            getattr(self, _IDENTITY_FIELD).errors.append(get_message('DISABLED_ACCOUNT')[0])
+            getattr(self, self._IDENTITY_FIELD).errors.append(get_message('DISABLED_ACCOUNT')[0])
             return False
 
         return True
