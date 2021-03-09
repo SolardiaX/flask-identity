@@ -23,6 +23,8 @@ app.config.update(
     SQLALCHEMY_DATABASE_URI='sqlite://',
     SQLALCHEMY_TRACK_MODIFICATIONS=False,
     SQLALCHEMY_ENGINE_OPTIONS={"pool_pre_ping": True},
+
+    BABEL_DEFAULT_LOCALE="zh_hans_CN",
 )
 
 

@@ -20,9 +20,11 @@ from flask_sqlalchemy import SQLAlchemy
 
 from flask_identity.core import IdentityManager
 from flask_identity.mixins import UserMixin, RoleMixin
+from flask_babel import Babel
 
 identity = IdentityManager()
 db = SQLAlchemy()
+babel = Babel()
 
 
 class BaseModel(db.Model):

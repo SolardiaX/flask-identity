@@ -83,15 +83,15 @@ class LoginForm(BaseForm, NextFormMixin):
         self.user = current_identity.datastore.find_user(**{_IDENTITY_FIELD: self.data[_IDENTITY_FIELD]})
 
         if self.user is None:
-            getattr(self, _IDENTITY_FIELD).errors.append(get_message('USER_DOES_NOT_EXIST'))
+            getattr(self, _IDENTITY_FIELD).errors.append(get_message('USER_DOES_NOT_EXIST')[0])
             return False
 
         if not self.user.verify_password(self.password.data):
-            self.password.errors.append(get_message('INVALID_PASSWORD'))
+            self.password.errors.append(get_message('INVALID_PASSWORD')[0])
             return False
 
         if not self.user.is_actived:
-            getattr(self, _IDENTITY_FIELD).errors.append(get_message('DISABLED_ACCOUNT'))
+            getattr(self, _IDENTITY_FIELD).errors.append(get_message('DISABLED_ACCOUNT')[0])
             return False
 
         return True

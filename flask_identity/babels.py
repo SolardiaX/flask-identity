@@ -14,13 +14,10 @@ from wtforms.i18n import messages_path
 
 from .utils import config_value
 
-_domain_cls = Domain
-_dir_keyword = "translation_directories"
-
 
 def get_i18n_domain(app):
     kwargs = {
-        _dir_keyword: config_value("I18N_DIRNAME", app=app),
+        "translation_directories": config_value("I18N_DIRNAME", app=app),
         "domain": config_value("I18N_DOMAIN", app=app),
     }
     return Domain(**kwargs)

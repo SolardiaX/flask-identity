@@ -1,20 +1,36 @@
 {% block content %}
-<form action="{{ url_for_identity('login') }}" method="POST" name="login_form">
-  <div>
-    <span><label for="username">Username</label></span>
-    <span><input type="text" id="username" name="username"></span>
-  </div>
-  <div>
-    <span><label for="password">Password</label></span>
-    <span><input type="text" id="password" name="password"></span>
-  </div>
-  <div>
-    <span><input type="checkbox" id="remember" name="remember"></span>
-    <span><label for="remember">Remember me</label></span>
-  </div>
-  <div>
-    {{ login_form.hidden_tag() }}
-    <span><button type="submit">Login</button></span>
-  </div>
-</form>
+  <form action="{{ url_for_identity('login') }}" method="POST" name="login_form">
+    <div>
+      <span><label for="username">Username</label></span>
+      <span><input type="text" id="username" name="username"></span>
+    </div>
+    <div>
+      <span><label for="password">Password</label></span>
+      <span><input type="text" id="password" name="password"></span>
+    </div>
+    <div>
+      <span><input type="checkbox" id="remember" name="remember"></span>
+      <span><label for="remember">Remember me</label></span>
+    </div>
+    <div>
+      {% if login_form.username.errors %}
+        <div>
+          {% for error in login_form.username.errors %}
+            <p>{{ error }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+      {% if login_form.password.errors %}
+        <div>
+          {% for error in login_form.password.errors %}
+            <p>{{ error }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+    <div>
+      {{ login_form.hidden_tag() }}
+      <span><button type="submit">Login</button></span>
+    </div>
+  </form>
 {% endblock %}

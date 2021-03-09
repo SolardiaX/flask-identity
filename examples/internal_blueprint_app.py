@@ -45,6 +45,8 @@ def require_roles():
 
 
 if __name__ == '__main__':
+    babel.init_app(app)
+
     db.init_app(app)
     db.create_all(app=app)
 

@@ -5,7 +5,7 @@ default = true
 
 [tool.poetry]
 name = "Flask-Identity"
-version = "1.0.3dev3"
+version = "1.0.3dev5"
 description = "A lightweight extension & library to security Flask applications quickly and simply."
 authors = ["SolardiaX <solardiax@hotmail.com>"]
 maintainers = ["SolardiaX <solardiax@hotmail.com>"]
