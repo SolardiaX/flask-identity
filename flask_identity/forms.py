@@ -37,7 +37,9 @@ class BaseForm(FlaskForm):
 
 
 class NextFormMixin:
-    next = HiddenField()
+    def __init__(self, *args, **kwargs):
+        self._NEXT_FIELD = config_value('FORM_NEXT_FIELD')
+        setattr(NextFormMixin, self._NEXT_FIELD, HiddenField(self._NEXT_FIELD))
 
     # noinspection PyMethodMayBeStatic
     def validate_next(self, field):
@@ -48,23 +50,34 @@ class NextFormMixin:
 
 
 class LoginForm(BaseForm, NextFormMixin):
-    _IDENTITY_FIELD = config_value('IDENTITY_FIELD')
-    _REMEBER_FIELD = config_value('FORM_REMEBER_FIELD')
-    _NEXT_FIELD = config_value('FORM_NEXT_FIELD')
-
     """
     The default login form
     """
-    locals()[_IDENTITY_FIELD] = StringField(_IDENTITY_FIELD, validators=[DataRequired()], default='')
-    locals()[_REMEBER_FIELD] = BooleanField(_REMEBER_FIELD)
-    locals()[_NEXT_FIELD] = HiddenField(_NEXT_FIELD)
 
     password = PasswordField('password', validators=[DataRequired()], default='')
 
     def __init__(self, *args, **kwargs):
+        NextFormMixin.__init__(self, *args, **kwargs)
+
         self.user = None
         self.next_url = None
-        super().__init__(*args, **kwargs)
+
+        self._IDENTITY_FIELD = config_value('IDENTITY_FIELD')
+        self._REMEBER_FIELD = config_value('FORM_REMEBER_FIELD')
+
+        _unbound_fields = set(self._unbound_fields)
+
+        setattr(LoginForm, self._IDENTITY_FIELD,
+                StringField(self._IDENTITY_FIELD, validators=[DataRequired()], default=''))
+        setattr(LoginForm, self._REMEBER_FIELD, BooleanField(self._REMEBER_FIELD))
+
+        _unbound_fields.add((self._IDENTITY_FIELD, getattr(self, self._IDENTITY_FIELD)))
+        _unbound_fields.add((self._REMEBER_FIELD, getattr(self, self._REMEBER_FIELD)))
+        _unbound_fields.add((self._NEXT_FIELD, getattr(self, self._NEXT_FIELD)))
+
+        self._unbound_fields = list(_unbound_fields)
+
+        BaseForm.__init__(self, *args, **kwargs)
 
         if not self.next.data:
             next_key = config_value('NEXT_KEY')

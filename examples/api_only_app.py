@@ -20,6 +20,7 @@ from flask import request, redirect, url_for, render_template
 
 from flask_identity.decorators import roles_required
 from flask_identity.utils import verify_password, current_user, login_user, logout_user, get_post_login_redirect
+from flask_identity.forms import LoginForm
 
 from common import app
 from common.models import *
@@ -45,8 +46,9 @@ def require_roles():
 @app.route('/login', methods=('GET', 'POST'))
 def login():
     error = ''
+    form = LoginForm()
 
-    if request.method == 'POST':
+    if form.validate_on_submit():
         datastore = identity.datastore
         user = datastore.find_user(username=request.values.get('username'))
         if user and verify_password(request.values.get('password'), user.password):
@@ -59,6 +61,8 @@ def login():
 
 
 if __name__ == '__main__':
+    babel.init_app(app)
+
     db.init_app(app)
     db.create_all(app=app)
 
