@@ -52,8 +52,7 @@ some codes are direct merged from other successful open-source libraries:
 
 Contributing
 ++++++++++++
-Issues and pull requests are welcome. Other maintainers are also welcome. Unlike
-the original Flask-Security - issue pull requests against the *master* branch.
+Issues and pull requests are welcome.
 Please consult these `contributing`_ guidelines.
 
 .. _contributing: https://github.com/solardiax/flask-identity/blob/master/CONTRIBUTING.rst
