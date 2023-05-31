@@ -208,7 +208,7 @@ def unauth_csrf(fall_through=False):
     This decorator will always require CSRF if the caller is authenticated.
 
     This decorator will suppress CSRF if caller isn't authenticated and has set the
-    *SECURITY_CSRF_IGNORE_UNAUTH_ENDPOINTS* config variable.
+    *WTF_CSRF_IGNORE_UNAUTH_ENDPOINTS* config variable.
 
     :param fall_through: if set to True, then if CSRF fails here - simply keep going.
         This is appropriate if underlying view is form based and once the form is
@@ -224,7 +224,7 @@ def unauth_csrf(fall_through=False):
             if not current_app.config.get("WTF_CSRF_ENABLED", False) or not current_app.extensions.get("csrf", None):
                 return fn(*args, **kwargs)
 
-            if config_value("CSRF_IGNORE_UNAUTH_ENDPOINTS") and not current_user.is_authenticated:
+            if config_value("WTF_CSRF_IGNORE_UNAUTH_ENDPOINTS") and not current_user.is_authenticated:
                 _request_ctx_stack.top.fs_ignore_csrf = True
             else:
                 try:

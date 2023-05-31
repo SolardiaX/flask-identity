@@ -175,25 +175,17 @@ class IdentityManager(object):
             self._register_blueprint = register_blueprint
 
         if register_blueprint:
-            create_blueprint(self, __name__, app.json_encoder)
+            create_blueprint(self, __name__, app.json)
 
         self._i18n_domain = get_i18n_domain(app)
 
-        @app.before_first_request
-        def _register_i18n():
-            # This is only not registered if Flask-Babel isn't installed...
-            if "_" not in app.jinja_env.globals:
-                current_app.jinja_env.globals["_"] = self._i18n_domain.gettext
-            # Register so other packages can reference our translations.
-            current_app.jinja_env.globals["_fsdomain"] = self._i18n_domain.gettext
+        current_app.jinja_env.globals["_fsdomain"] = self._i18n_domain.gettext
 
-        @app.before_first_request
-        def check_babel():
-            # Verify that if Flask-Babel is installed
-            if have_babel() and "babel" not in app.extensions:
-                raise ValueError(
-                    "Flask-Babel is installed but not initialized"
-                )
+        # Verify that if Flask-Babel is installed
+        if have_babel() and "babel" not in app.extensions:
+            raise ValueError(
+                "Flask-Babel is installed but not initialized"
+            )
 
     def _add_ctx_processor(self, endpoint, fn):
         group = self._context_processors.setdefault(endpoint, [])

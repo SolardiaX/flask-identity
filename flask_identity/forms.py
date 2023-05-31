@@ -88,7 +88,7 @@ class LoginForm(BaseForm, NextFormMixin):
 
         getattr(self, self._REMEBER_FIELD).default = config_value("DEFAULT_REMEMBER_ME")
 
-    def validate(self):
+    def validate(self, extra_validators=None):
         if not super().validate():
             return False
 
