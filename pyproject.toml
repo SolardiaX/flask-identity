@@ -1,7 +1,11 @@
 [[tool.poetry.source]]
+name = "PyPI"
+priority = "primary"
+
+[[tool.poetry.source]]
 name = "aliyun"
 url = "https://mirrors.aliyun.com/pypi/simple/"
-default = true
+priority = "supplemental"
 
 [tool.poetry]
 name = "Flask-Identity"
