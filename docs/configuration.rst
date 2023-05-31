@@ -339,4 +339,70 @@ These configuration are used in i8n response messages.
 
     Specifies the directory containing the MO files used for translations.
 
-    Default: `[PATH_LIB]/flask_identity/translations``.
+    Default: ``[PATH_LIB]/flask_identity/translations``.
+
+
+WTF/CSRF
+--------------
+
+.. py:data:: WTF_CSRF_ENABLED
+
+    Flask-WTF: Set to False to disable all CSRF protection.
+
+    Default: ``True``
+
+.. py:data:: WTF_CSRF_CHECK_DEFAULT
+
+    Flask-WTF: When using the CSRF protection extension, this controls whether every view is protected by default.
+
+    Default: ``True``
+
+.. py:data:: WTF_CSRF_SECRET_KEY
+
+    Flask-WTF: Random data for generating secure tokens. If this is not set then SECRET_KEY is used.
+
+    Default: ``None``
+
+.. py:data:: WTF_CSRF_METHODS
+
+    Flask-WTF: HTTP methods to protect from CSRF.
+
+    Default is ``{'POST', 'PUT', 'PATCH', 'DELETE'}``
+
+.. py:data:: WTF_CSRF_FIELD_NAME
+
+    Flask-WTF: Name of the form field and session key that holds the CSRF token.
+
+    Default: ``'csrf_token'``
+
+.. py:data:: WTF_CSRF_HEADERS
+
+    Flask-WTF: HTTP headers to search for CSRF token when it is not provided in the form.
+
+    Default: ``['X-CSRFToken', 'X-CSRF-Token']``
+
+.. py:data:: WTF_CSRF_TIME_LIMIT
+
+    Flask-WTF: Max age in seconds for CSRF tokens.
+    If set to None, the CSRF token is valid for the life of the session.
+
+    Default: ``3600``
+
+.. py:data:: WTF_CSRF_SSL_STRICT
+
+    Flask-WTF: Whether to enforce the same origin policy by checking that the referrer matches the host.
+    Only applies to HTTPS requests.
+
+    Default: ``True``
+
+.. py:data:: WTF_I18N_ENABLED
+
+    Flask-WTF: Set to False to disable Flask-Babel I18N support.
+    Also set to False if you want to use WTForms’s built-in messages directly.
+
+    Default: ``True``
+
+.. py:data:: WTF_CSRF_IGNORE_UNAUTH_ENDPOINTS
+
+    Specifies the endpoint to ignore CSRF check.
+    Default: ``[]``

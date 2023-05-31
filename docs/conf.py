@@ -20,7 +20,7 @@ sys.path.insert(0, os.path.abspath('..'))
 # -- Project information -----------------------------------------------------
 
 project = 'Flask-Identity'
-copyright = '2020, SolardiaX'
+copyright = '2023, SolardiaX'
 author = 'SolardiaX'
 
 
@@ -45,7 +45,7 @@ intersphinx_mapping = {
     "itsdangerous": ("https://itsdangerous.palletsprojects.com/", None),
     "sqlalchemy": ("https://docs.sqlalchemy.org/", None),
     "wtforms": ("https://wtforms.readthedocs.io/en/stable/", None),
-    "blinker": ("https://pythonhosted.org/blinker/", None),
+    "blinker": ("https://blinker.readthedocs.io/en/stable/", None),
 }
 
 # Add any paths that contain templates here, relative to this directory.

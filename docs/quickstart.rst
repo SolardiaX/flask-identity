@@ -47,7 +47,6 @@ possible using Flask-SQLAlchemy and the built-in model mixins:
 
     # Generate a nice key using secrets.token_urlsafe()
     app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY", '2HF_R3JddWTLu0zJ1kSV-w')
-    # Bcrypt is set as default SECURITY_PASSWORD_HASH, which requires a salt
     # Generate a good salt using: secrets.SystemRandom().getrandbits(128)
     app.config['IDENTITY_HASH_SALT'] = os.environ.get("IDENTITY_HASH_SALT", '2HF_R3JddWTLu0zJ1kSV_hash$salt_')
     app.config['IDENTITY_DATASTORE_ADAPTER']='sqlalchemy'
