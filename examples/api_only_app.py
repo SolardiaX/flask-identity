@@ -39,7 +39,7 @@ def require_roles():
 @app.route('/login', methods=('GET', 'POST'))
 def login():
     error = ''
-    form = LoginForm()
+    form = LoginForm(meta={'csrf': False})
 
     if form.validate_on_submit():
         datastore = identity.datastore
@@ -49,15 +49,16 @@ def login():
             return redirect(get_post_login_redirect())
         else:
             error = 'username/password error.'
+    else:
+        for field, msg in form.errors.items():
+            error += "{0} not validated - {1}".format(field, msg)
 
     return render_template('user_login_api_only.html', error=error)
 
 
 if __name__ == '__main__':
-    babel.init_app(app)
+    with app.app_context():
+        from common import init
+        init()
 
-    db.init_app(app)
-    db.create_all(app=app)
-
-    identity.init_app(app, db=db, user_model=Users, role_model=Roles)
     app.run('0.0.0.0', 9000, True)

@@ -38,10 +38,9 @@ def require_roles():
 
 
 if __name__ == '__main__':
-    babel.init_app(app)
+    with app.app_context():
+        from common import init
 
-    db.init_app(app)
-    db.create_all(app=app)
+        init()
 
-    identity.init_app(app, db=db, user_model=Users, role_model=Roles)
     app.run('0.0.0.0', 9000, True)

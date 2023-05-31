@@ -30,10 +30,16 @@ app.config.update(
 )
 
 
-@app.before_first_request
 def init():
     from flask_identity.utils import hash_password
-    from common.models import identity
+    from common.models import babel, db, identity, Users, Roles
+
+    babel.init_app(app)
+
+    db.init_app(app)
+    db.create_all()
+
+    identity.init_app(app, db=db, user_model=Users, role_model=Roles)
 
     datastore = identity.datastore
     admin = datastore.find_user(username='admin')
