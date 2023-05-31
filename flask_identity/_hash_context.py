@@ -7,7 +7,7 @@
 
     :author: solardiax <solardiax@hotmail.com>
     :copyright: (c) 2020 by DreamEx Works.
-    :license: GPL-3.0, see LICENSE for more details.
+    :license: MIT, see LICENSE for more details.
 """
 
 

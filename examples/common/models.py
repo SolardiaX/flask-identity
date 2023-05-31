@@ -1,19 +1,12 @@
-#  Disclaimer & Copyright Notice
-#
-#   Project: Flask-Identity
-#    Author: hchenam
-#
-#  Copyright (c) 2020 DreamEx Works, All rights reserved.
-
 # -*- coding: utf-8 -*-
 
 """
-    examples.models
+    examples
     ~~~~~~~~~~~~~~~~~~~
-    Database Models of Simple Example of Flask-Identity
+    Simple Example of Flask-Identity
     
     :copyright: (c) 2019 by DreamEx Works.
-    :license: GPL-3.0, see LICENSE for more details.
+    :license: MIT, see LICENSE for more details.
 """
 
 from flask_sqlalchemy import SQLAlchemy

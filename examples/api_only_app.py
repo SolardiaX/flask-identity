@@ -1,10 +1,3 @@
-#  Disclaimer & Copyright Notice
-#
-#   Project: Flask-Identity
-#    Author: hchenam
-#
-#  Copyright (c) 2020 DreamEx Works, All rights reserved.
-
 # -*- coding: utf-8 -*-
 
 """
@@ -13,7 +6,7 @@
     Simple Example of Flask-Identity
 
     :copyright: (c) 2019 by DreamEx Works.
-    :license: GPL-3.0, see LICENSE for more details.
+    :license: MIT, see LICENSE for more details.
 """
 
 from flask import request, redirect, url_for, render_template
