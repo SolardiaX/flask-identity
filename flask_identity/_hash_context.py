@@ -17,20 +17,20 @@ from passlib.context import CryptContext
 class HashContext(object):
     """
     | Class to generate/verify hash securitied string.
-    | Hashed string can used to store context or any unencrypt context.
+    | Hashed string can be used to store context or any unencrypt context.
     """
 
     def __init__(self, app) -> None:
-        secret_key = app.config.get('IDENTITY_HASH_SALT', None)
+        secret_key = app.config.get("IDENTITY_HASH_SALT", None)
 
         if secret_key is None:
-            secret_key = app.config.get('SECRET_KEY', None)
+            secret_key = app.config.get("SECRET_KEY", None)
 
         if secret_key is None:
-            raise SystemError('Config setting SECRET_KEY or IDENTITY_HASH_SALT is missing.')
+            raise SystemError("Config setting SECRET_KEY or IDENTITY_HASH_SALT is missing.")
 
-        schemes = app.config.get('IDENTITY_HASH_SCHEMES', ['bcrypt'])
-        schemes_keywords = app.config.get('IDENTITY_HASH_OPTIONS', {})
+        schemes = app.config.get("IDENTITY_HASH_SCHEMES", ["bcrypt"])
+        schemes_keywords = app.config.get("IDENTITY_HASH_OPTIONS", {})
 
         # Create a passlib CryptContext
         self.crypt_context = CryptContext(schemes, **schemes_keywords)
@@ -42,7 +42,7 @@ class HashContext(object):
         :return: hashed context.
 
         Example:
-            ``user.context = hash_context('mycontext')``
+            ``user.context = hash_context("mycontext")``
         """
 
         # Use passlib's CryptContext to hash a context
@@ -61,7 +61,7 @@ class HashContext(object):
 
         Example:
             ::
-                if verify_context('mycontext', user.context):
+                if verify_context("mycontext", user.context):
                     login_user(user)
         """
         # Use passlib's CryptContext to verify a context

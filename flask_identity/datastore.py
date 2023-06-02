@@ -150,7 +150,7 @@ class IdentityStore(object):
     :param role_model: A role model class definition
 
     Be aware that for mutating operations, the user/role will be added to the
-    store (by calling self.put(<object>). If the datastore is session based
+    store (by calling self.put(<object>)). If the datastore is session based
     (such as for SQLAlchemyDatastore) it is up to caller to actually
     commit the transaction by calling datastore.commit().
     """
@@ -161,9 +161,9 @@ class IdentityStore(object):
 
     def _prepare_role_modify_args(self, user, role):
         if not isinstance(user, self.user_model):
-            user = self.find_user(**{config_value('IDENTITY_FIELD'): user})
+            user = self.find_user(**{config_value("DATASTORE_IDENTITY_FIELD"): user})
         if isinstance(role, str):
-            role = self.find_role(**{'name': role})
+            role = self.find_role(**{"name": role})
         return user, role
 
     def _prepare_create_user_args(self, **kwargs):
@@ -174,8 +174,10 @@ class IdentityStore(object):
             # see if the role exists
             roles[i] = self.find_role(rn)
         kwargs["roles"] = roles
-        if hasattr(self.user_model, "uniquifier"):
-            kwargs.setdefault("uniquifier", uuid.uuid4().hex)
+
+        unique_token_field = config_value("DATASTORE_UNIQUE_TOKEN_FIELD", default="uniquifier")
+        if hasattr(self.user_model, unique_token_field):
+            kwargs.setdefault(unique_token_field, uuid.uuid4().hex)
         return kwargs
 
     def find_user(self, *args, **kwargs):
@@ -190,7 +192,7 @@ class IdentityStore(object):
         """
         Adds a role to a user.
 
-        :param user: The user to manipulate. Can be an User object or lookup key id with ``'IDENTITY_IDENTITY_FIELD'``
+        :param user: The user to manipulate. Can be a User object or lookup key id with ``"IDENTITY_DATASTORE_IDENTITY_FIELD"``
         :param role: The role to add to the user. Can be a Role object or
             string role name
         """
@@ -207,7 +209,7 @@ class IdentityStore(object):
         """
         Removes a role from a user.
 
-        :param user: The user to manipulate. Can be an User object or lookup key id with ``'IDENTIT_IDENTITY_FIELD'``
+        :param user: The user to manipulate. Can be a User object or lookup key id with ``"IDENTIT_DATASTORE_IDENTITY_FIELD"``
         :param role: The role to remove from the user. Can be a Role object or
             string role name
         """
@@ -269,13 +271,15 @@ class IdentityStore(object):
         :param uniquifier: Unique value - if none then uuid.uuid4().hex is used
 
         This method is a no-op if the user model doesn't contain the attribute
-        ``uniquifier``
+        ``DATASTORE_UNIQUE_TOKEN_FIELD``
         """
-        if not hasattr(user, "uniquifier"):
+        unique_token_field = config_value("DATASTORE_UNIQUE_TOKEN_FIELD", default="uniquifier")
+        if not hasattr(user, unique_token_field):
             return
         if not uniquifier:
             uniquifier = uuid.uuid4().hex
-        user.uniquifier = uniquifier
+
+        setattr(user, unique_token_field, uniquifier)
         # noinspection PyUnresolvedReferences
         self.save(user)
 
@@ -332,13 +336,13 @@ class PonyIdentityStore(IdentityStore, PonyStore):
 
     def find_user(self, *args, **kwargs):
         if len(args) > 0:
-            kwargs.update({config_value('IDENTITY_FIELD'): args[0]})
+            kwargs.update({config_value("DATASTORE_IDENTITY_FIELD"): args[0]})
 
         return self.get(self.user_model, **kwargs)
 
     def find_role(self, *args, **kwargs):
         if len(args) > 0:
-            kwargs.update({config_value('IDENTITY_FIELD'): args[0]})
+            kwargs.update({config_value("DATASTORE_IDENTITY_FIELD"): args[0]})
 
         return self.get(self.role_model, **kwargs)
 
@@ -361,7 +365,7 @@ class SQLAlchemyStore(Store):
     def find(self, objectclass, **kwargs):
         query = objectclass.query
         for field_name, field_value in kwargs.items():
-            # Make sure that ObjectClass has a 'field_name' property
+            # Make sure that ObjectClass has a "field_name" property
             field = getattr(objectclass, field_name, None)
             if field is None:
                 raise KeyError(
@@ -377,13 +381,13 @@ class SQLAlchemyStore(Store):
     def get(self, objectclass, **kwargs):
         query = objectclass.query
         for field_name, field_value in kwargs.items():
-            # Make sure that ObjectClass has a 'field_name' property
+            # Make sure that ObjectClass has a "field_name" property
             field = getattr(objectclass, field_name, None)
             if field is None:
                 raise KeyError(
                     "BaseAlchemyAdapter.find_first_object(): Class '%s' has no field '%s'." % (objectclass, field_name))
 
-            # Add a case sensitive filter to the query
+            # Add a case-sensitive filter to the query
             query = query.filter(field == field_value)  # case sensitive!!
 
         # Execute query
@@ -405,13 +409,13 @@ class SQLAlchemyIdentityStore(IdentityStore, SQLAlchemyStore):
 
     def find_user(self, *args, **kwargs):
         if len(args) > 0:
-            kwargs.update({config_value('IDENTITY_FIELD'): args[0]})
+            kwargs.update({config_value("DATASTORE_IDENTITY_FIELD"): args[0]})
 
         return self.get(self.user_model, **kwargs)
 
     def find_role(self, *args, **kwargs):
         if len(args) > 0:
-            kwargs.update({config_value('IDENTITY_FIELD'): args[0]})
+            kwargs.update({config_value("DATASTORE_IDENTITY_FIELD"): args[0]})
 
         return self.get(self.role_model, **kwargs)
 
@@ -450,12 +454,12 @@ class MongoEngineIdentityStore(IdentityStore, MongoEngineStore):
 
     def find_user(self, *args, **kwargs):
         if len(args) > 0:
-            kwargs.update({config_value('IDENTITY_FIELD'): args[0]})
+            kwargs.update({config_value("DATASTORE_IDENTITY_FIELD"): args[0]})
 
         return self.user_model.objects(**kwargs).first()
 
     def find_role(self, *args, **kwargs):
         if len(args) > 0:
-            kwargs.update({config_value('IDENTITY_FIELD'): args[0]})
+            kwargs.update({config_value("DATASTORE_IDENTITY_FIELD"): args[0]})
 
         return self.role_model.objects(**kwargs).first()

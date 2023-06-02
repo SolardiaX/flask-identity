@@ -37,13 +37,6 @@ These configuration are used globally across all features and should be configur
 
     Default: ``'/'``.
 
-.. py:data:: IDENTITY_FIELD
-
-    The identity field used to lookup user from ``DataStore``.
-    The field must defined in ``UserMixin`` based user class.
-
-    Default: ``'username'``.
-
 .. py:data:: IDENTITY_TOKEN_NAME
 
     The name used to store user token in request & session.
@@ -107,6 +100,20 @@ These configuration are used globally across all features and should be configur
 
     Default: ``None``.
 
+.. py:data:: DATASTORE_IDENTITY_FIELD
+
+    The identity field used to lookup user from ``DataStore``.
+    The field must defined in ``UserMixin`` based user class.
+
+    Default: ``'username'``.
+
+.. py:data:: DATASTORE_UNIQUE_TOKEN_FIELD
+
+    The identity field used to store unique token in ``DataStore``.
+    This will immediately render outstanding auth tokens invalid.
+
+    Default: ``uniquifier``.
+
 .. py:data:: TRACKABLE
 
     Specifies if Flask-Identity should track basic user login statistics.
@@ -121,6 +128,12 @@ Form
 --------------
 
 These configuration are used with build-in form to login in a user.
+
+.. py:data:: FORM_IDENTITY_FIELD
+
+    The form field used to store the identity login for lookup in `Datastore` with `"IDENTITY_FIELD"`.
+
+    Default: ``'username'``
 
 .. py:data:: FORM_REMEBER_FIELD
 

@@ -38,7 +38,7 @@ class BaseForm(FlaskForm):
 
 class NextFormMixin:
     def __init__(self, *args, **kwargs):
-        self._NEXT_FIELD = config_value('FORM_NEXT_FIELD')
+        self._NEXT_FIELD = config_value("FORM_NEXT_FIELD")
         setattr(NextFormMixin, self._NEXT_FIELD, HiddenField(self._NEXT_FIELD))
 
     # noinspection PyMethodMayBeStatic
@@ -54,21 +54,20 @@ class LoginForm(BaseForm, NextFormMixin):
     The default login form
     """
 
-    password = PasswordField('password', validators=[DataRequired()], default='')
+    password = PasswordField("password", validators=[DataRequired()], default="")
 
     def __init__(self, *args, **kwargs):
         NextFormMixin.__init__(self, *args, **kwargs)
 
         self.user = None
-        self.next_url = None
 
-        self._IDENTITY_FIELD = config_value('IDENTITY_FIELD')
-        self._REMEBER_FIELD = config_value('FORM_REMEBER_FIELD')
+        self._IDENTITY_FIELD = config_value("FORM_IDENTITY_FIELD")
+        self._REMEBER_FIELD = config_value("FORM_REMEBER_FIELD")
 
         _unbound_fields = set(self._unbound_fields)
 
         setattr(LoginForm, self._IDENTITY_FIELD,
-                StringField(self._IDENTITY_FIELD, validators=[DataRequired()], default=''))
+                StringField(self._IDENTITY_FIELD, validators=[DataRequired()], default=""))
         setattr(LoginForm, self._REMEBER_FIELD, BooleanField(self._REMEBER_FIELD))
 
         _unbound_fields.add((self._IDENTITY_FIELD, getattr(self, self._IDENTITY_FIELD)))
@@ -79,9 +78,9 @@ class LoginForm(BaseForm, NextFormMixin):
 
         BaseForm.__init__(self, *args, **kwargs)
 
-        if not self.next.data:
-            next_key = config_value('NEXT_KEY')
-            if config_value('NEXT_STORE') == 'request':
+        if not getattr(self, self._NEXT_FIELD).data:
+            next_key = config_value("NEXT_KEY")
+            if config_value("NEXT_STORE") == "request":
                 getattr(self, self._NEXT_FIELD).data = request.args.get(next_key, "")
             else:
                 getattr(self, self._NEXT_FIELD).data = session.get(next_key, "")
@@ -92,18 +91,19 @@ class LoginForm(BaseForm, NextFormMixin):
         if not super().validate():
             return False
 
-        self.user = current_identity.datastore.find_user(**{self._IDENTITY_FIELD: self.data[self._IDENTITY_FIELD]})
+        id_field = config_value("DATASTORE_IDENTITY_FIELD")
+        self.user = current_identity.datastore.find_user(**{id_field: self.data[self._IDENTITY_FIELD]})
 
         if self.user is None:
-            getattr(self, self._IDENTITY_FIELD).errors.append(get_message('USER_DOES_NOT_EXIST')[0])
+            getattr(self, self._IDENTITY_FIELD).errors.append(get_message("USER_DOES_NOT_EXIST")[0])
             return False
 
         if not self.user.verify_password(self.password.data):
-            self.password.errors.append(get_message('INVALID_PASSWORD')[0])
+            self.password.errors.append(get_message("INVALID_PASSWORD")[0])
             return False
 
         if not self.user.is_actived:
-            getattr(self, self._IDENTITY_FIELD).errors.append(get_message('DISABLED_ACCOUNT')[0])
+            getattr(self, self._IDENTITY_FIELD).errors.append(get_message("DISABLED_ACCOUNT")[0])
             return False
 
         return True

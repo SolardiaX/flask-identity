@@ -38,7 +38,7 @@ class UserMixin(object):
 
     @property
     def is_actived(self):
-        return True if not hasattr(self, 'active') else self.active
+        return True if not hasattr(self, "active") else self.active
 
     @property
     def is_authenticated(self):
@@ -52,30 +52,30 @@ class UserMixin(object):
         try:
             return str(self.id)
         except AttributeError:
-            raise NotImplementedError('No `id` attribute - override `get_id`')
+            raise NotImplementedError("No `id` attribute - override `get_id`")
 
     def has_roles(self, *requirements):
         """
-        Return True if the user has all of the specified roles. Return False otherwise.
+        Return True if the user has all the specified roles. Return False otherwise.
 
         has_roles() accepts a list of requirements:
             has_roles(requirement1, requirement2, requirement3).
 
         Each requirement is either a role_name, or a tuple_of_role_names.
-            role_name example:   'manager'
-            tuple_of_role_names: ('funny', 'witty', 'hilarious')
+            role_name example:   "manager"
+            tuple_of_role_names: ("funny", "witty", "hilarious")
 
         A role_name-requirement is accepted when the user has this role.
         A tuple_of_role_names-requirement is accepted when the user has ONE of these roles.
 
-        has_roles() returns true if ALL of the requirements have been accepted.
+        has_roles() returns true if `ALL` the requirements have been accepted.
 
         For example:
-            has_roles('a', ('b', 'c'), d)
+            has_roles("a", ("b", "c"), d)
         Translates to:
-            User has role 'a' AND (role 'b' OR role 'c') AND role 'd'
+            User has role "a" AND (role "b" OR role "c") AND role "d"
         """
-        roles = getattr(self, 'roles') if hasattr(self, 'roles') else ()
+        roles = getattr(self, "roles") if hasattr(self, "roles") else ()
         role_names = [(r.name if isinstance(r, RoleMixin) else r) for r in roles]
 
         for requirement in requirements:
@@ -107,23 +107,24 @@ class UserMixin(object):
         """
         from .utils import current_identity
 
-        field = current_identity.config_value('IDENTITY_FIELD')
-        uniquifier = getattr(self, 'uniquifier') if hasattr(self, 'uniquifier') else None
+        identity_field = current_identity.config_value("DATASTORE_IDENTITY_FIELD")
+        unique_token_field = config_value("DATASTORE_UNIQUE_TOKEN_FIELD", default="uniquifier")
+        uniquifier = getattr(self, unique_token_field) if hasattr(self, unique_token_field) else None
 
         # noinspection PyProtectedMember
         return current_identity._token_context.generate_token({
-            field: getattr(self, field),
-            'uniquifier': uniquifier
+            identity_field: getattr(self, identity_field),
+            unique_token_field: uniquifier
         })
 
     def get_security_payload(self):
         """Serialize user object as response payload."""
         from .utils import current_identity
 
-        field = current_identity.config_value('IDENTITY_FIELD')
-        uniquifier = getattr(self, 'uniquifier') if hasattr(self, 'uniquifier') else None
+        field = current_identity.config_value("DATASTORE_IDENTITY_FIELD")
+        uniquifier = getattr(self, "uniquifier") if hasattr(self, "uniquifier") else None
 
-        return {"id": str(self.id), field: getattr(self, field), 'uniquifier': uniquifier}
+        return {"id": str(self.id), field: getattr(self, field), "uniquifier": uniquifier}
 
     def verify_password(self, passwd):
         """Verify password"""

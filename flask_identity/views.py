@@ -56,9 +56,9 @@ def url_for_identity(endpoint, **values):
     :param endpoint: the endpoint of the URL (name of the function)
     :param values: the variable arguments of the URL rule
     """
-    blueprint_name = current_identity.config_value('BLUEPRINT_NAME')
+    blueprint_name = current_identity.config_value("BLUEPRINT_NAME")
     if blueprint_name is None:
-        raise RuntimeError('Blueprint not registed!')
+        raise RuntimeError("Blueprint not registed!")
 
     return url_for(f"{blueprint_name}.{endpoint}", **values)
 
@@ -113,10 +113,10 @@ def login():
     """
     if current_user.is_authenticated and request.method == "POST":
         # Just redirect current_user to POST_LOGIN_VIEW (or next).
-        # While its tempting to try to logout the current user and login the
+        # While it's tempting to try to log out the current user and login the
         # new requested user - that simply doesn't work with CSRF.
         if request.is_json:
-            return render_json(config_value('MSG_ANONYMOUS_USER_REQUIRED'), 400, None)
+            return render_json(config_value("MSG_ANONYMOUS_USER_REQUIRED"), 400, None)
         else:
             return redirect(get_post_login_redirect())
 
@@ -134,7 +134,7 @@ def login():
         form = form_class(request.form)
 
     if form.validate_on_submit():
-        remember_me = form.remember.data if config_value('FORM_REMEBER_FIELD') in form else None
+        remember_me = form.remember.data if config_value("FORM_REMEBER_FIELD") in form else None
         login_user(form.user, remember=remember_me)
         after_this_request(_commit)
 
@@ -165,7 +165,7 @@ def logout():
     if current_user.is_authenticated:
         logout_user()
 
-    # No body is required - so if a POST and json - return OK
+    # Nobody is required - so if a POST and json - return OK
     if request.method == "POST" and request.is_json:
         return render_json({}, 200, headers=None)
 
@@ -176,20 +176,20 @@ def create_blueprint(identity, import_name, json_encoder=None):
     """Creates the identity extension blueprint"""
 
     bp = Blueprint(
-        identity.config_value('BLUEPRINT_NAME'),
+        identity.config_value("BLUEPRINT_NAME"),
         import_name,
-        url_prefix=identity.config_value('BLUEPRINT_URL_PREFIX'),
-        subdomain=identity.config_value('BLUEPRINT_SUBDOMAIN'),
-        template_folder=identity.config_value('BLUEPRINT_TEMPLATE_FOLDER'),
+        url_prefix=identity.config_value("BLUEPRINT_URL_PREFIX"),
+        subdomain=identity.config_value("BLUEPRINT_SUBDOMAIN"),
+        template_folder=identity.config_value("BLUEPRINT_TEMPLATE_FOLDER"),
     )
 
     if json_encoder:
         bp.json_encoder = json_encoder
 
-    bp.route(identity.config_value('BLUEPRINT_LOGIN_URL'),
-             methods=identity.config_value('BLUEPRINT_LOGIN_METHODS'), endpoint="login")(login)
+    bp.route(identity.config_value("BLUEPRINT_LOGIN_URL"),
+             methods=identity.config_value("BLUEPRINT_LOGIN_METHODS"), endpoint="login")(login)
 
-    bp.route(identity.config_value('BLUEPRINT_LOGOUT_URL'),
-             methods=identity.config_value('BLUEPRINT_LOGOUT_METHODS'), endpoint="logout")(logout)
+    bp.route(identity.config_value("BLUEPRINT_LOGOUT_URL"),
+             methods=identity.config_value("BLUEPRINT_LOGOUT_METHODS"), endpoint="logout")(logout)
 
     identity.app.register_blueprint(bp)

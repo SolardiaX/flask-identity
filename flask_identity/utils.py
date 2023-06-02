@@ -21,7 +21,7 @@ from werkzeug.local import LocalProxy
 from .mixins import UserMixin
 
 current_user = LocalProxy(lambda: get_user())
-current_identity = LocalProxy(lambda: current_app.extensions['identity'])
+current_identity = LocalProxy(lambda: current_app.extensions["identity"])
 # noinspection PyProtectedMember
 localize_callback = LocalProxy(lambda: current_identity._i18n_domain.gettext)
 
@@ -42,7 +42,7 @@ def login_user(user: UserMixin, uniquifier=None, remember=None, duration=None, f
     user's `is_active` property is ``False``, they will not be logged in
     unless `force` is ``True``.
 
-    This will return ``True`` if the log in attempt succeeds, and ``False`` if
+    This will return ``True`` if the login attempt success, and ``False`` if
     it fails (i.e. because the user is inactive).
 
     :param user: The user object to log in.
@@ -63,7 +63,7 @@ def login_user(user: UserMixin, uniquifier=None, remember=None, duration=None, f
     if not user.is_actived:
         return False
 
-    if config_value('TRACKABLE'):
+    if config_value("TRACKABLE"):
         remote_addr = request.remote_addr or None  # make sure it is None
 
         old_current_login, new_current_login = (
@@ -80,25 +80,26 @@ def login_user(user: UserMixin, uniquifier=None, remember=None, duration=None, f
 
         current_identity.datastore.save(user)
 
-    if hasattr(user, 'uniquifier'):
+    unique_token_field = config_value("DATASTORE_UNIQUE_TOKEN_FIELD", default="uniquifier")
+    if unique_token_field and hasattr(user, unique_token_field):
         current_identity.datastore.set_uniquifier(user, uniquifier)
 
-    remember = config_value('REMEMBER_ME') if remember is None else remember
+    remember = config_value("REMEMBER_ME") if remember is None else remember
 
     # noinspection PyProtectedMember
-    session[config_value('IDENTITY_TOKEN_NAME')] = user.get_auth_token()
+    session[config_value("IDENTITY_TOKEN_NAME")] = user.get_auth_token()
 
     # noinspection PyProtectedMember
-    session[config_value('SESSION_ID_KEY')] = current_identity._session_identifier_generator()
-    session[config_value('SESSION_FRESH_KEY')] = fresh
+    session[config_value("SESSION_ID_KEY")] = current_identity._session_identifier_generator()
+    session[config_value("SESSION_FRESH_KEY")] = fresh
 
     if remember:
-        session[config_value('COOKIE_SESSION_STATE_KEY')] = 'set'
-        duration = config_value('TOKEN_DURATION') if duration is None else duration
+        session[config_value("COOKIE_SESSION_STATE_KEY")] = "set"
+        duration = config_value("TOKEN_DURATION") if duration is None else duration
         try:
-            session[config_value('COOKIE_DURATION_SESSION_KEY')] = duration.total_seconds()
+            session[config_value("COOKIE_DURATION_SESSION_KEY")] = duration.total_seconds()
         except AttributeError:
-            raise Exception('duration must be a datetime.timedelta, instead got: {0}'.format(duration))
+            raise Exception("duration must be a datetime.timedelta, instead got: {0}".format(duration))
 
     current_identity.update_request_context_with_user(user)
 
@@ -110,21 +111,21 @@ def logout_user():
     Logs a user out. (You do not need to pass the actual user.) This will
     also clean up the remember me cookie if it exists.
     """
-    id_key = config_value('IDENTITY_TOKEN_NAME')
+    id_key = config_value("IDENTITY_TOKEN_NAME")
     if id_key in session:
         session.pop(id_key)
 
-    fresh = config_value('SESSION_FRESH_KEY')
+    fresh = config_value("SESSION_FRESH_KEY")
     if fresh in session:
         session.pop(fresh)
-    sid = config_value('SESSION_ID_KEY')
+    sid = config_value("SESSION_ID_KEY")
     if sid in session:
         session.pop(sid)
 
-    cookie_name = config_value('COOKIE_NAME')
+    cookie_name = config_value("COOKIE_NAME")
     if cookie_name in request.cookies:
-        session[config_value('COOKIE_SESSION_STATE_KEY')] = 'clear'
-        remember_seconds = config_value('COOKIE_DURATION_SESSION_KEY')
+        session[config_value("COOKIE_SESSION_STATE_KEY")] = "clear"
+        remember_seconds = config_value("COOKIE_DURATION_SESSION_KEY")
         if remember_seconds in session:
             session.pop(remember_seconds)
 
@@ -135,11 +136,11 @@ def logout_user():
 
 def base64_encode_param(endpoint_or_url, qparams=None):
     param = get_url(endpoint_or_url, qparams)
-    return base64_encode(param).decode('utf-8')
+    return base64_encode(param).decode("utf-8")
 
 
 def base64_decode_param(param):
-    return param if not param else base64_decode(param).decode('utf-8')
+    return param if not param else base64_decode(param).decode("utf-8")
 
 
 # noinspection PyBroadException
@@ -148,8 +149,8 @@ def get_url(endpoint_or_url, qparams=None):
     Returns a URL if a valid endpoint is found. Otherwise, returns the
     provided value.
 
-    :param endpoint_or_url: The endpoint name or URL to default to
-    :param qparams: additional query params to add to end of url
+    :param endpoint_or_url: The endpoint name or URL to default to.
+    :param qparams: additional query params to add to end of then url.
     :return: URL
     """
     try:
@@ -194,10 +195,10 @@ def json_error_response(errors):
     Helper to create an error response that adheres to the openapi spec.
     """
     if isinstance(errors, str):
-        # When the errors is a string, use the response/error/message format
+        # When the errors are string, use the response/error/message format
         response_json = dict(error=errors)
     elif isinstance(errors, dict):
-        # When the errors is a dict, use the DefaultJsonErrorResponse
+        # When the errors are dict, use the DefaultJsonErrorResponse
         # (response/errors/name/messages) format
         response_json = dict(errors=errors)
     else:
@@ -207,8 +208,8 @@ def json_error_response(errors):
 
 
 def get_post_action_redirect(config_key, declared=None):
-    next_key = config_value('NEXT_KEY')
-    next_field = config_value('FORM_NEXT_FIELD')
+    next_key = config_value("NEXT_KEY")
+    next_field = config_value("FORM_NEXT_FIELD")
 
     urls = [
         base64_decode_param(get_url(request.args.get(next_key, None))),
@@ -248,7 +249,7 @@ def find_redirect(key):
 
 def config_value(key, app=None, default=None):
     """
-    Get a Identity configuration value.
+    Get an Identity configuration value.
 
     :param key: The configuration key without the prefix `IDENTITY_`
     :param app: An optional specific application to inspect. Defaults to
@@ -262,15 +263,15 @@ def config_value(key, app=None, default=None):
 def get_config(app):
     """
     Conveniently get the security configuration for the specified
-    application without the 'IDENTITY_' prefix.
+    application without the "IDENTITY_" prefix.
 
     :param app: The `Flask` application to inspect
     """
     items = app.config.items()
-    prefix = 'IDENTITY_'
+    prefix = "IDENTITY_"
 
     def strip_prefix(tup):
-        return tup[0].replace('IDENTITY_', '', 1), tup[1]
+        return tup[0].replace("IDENTITY_", "", 1), tup[1]
 
     return dict([strip_prefix(i) for i in items if i[0].startswith(prefix)])
 
@@ -298,15 +299,15 @@ def verify_password(password, password_hash):
 
 
 def clear_cookie(response):
-    cookie_name = config_value('COOKIE_NAME')
-    domain = config_value('COOKIE_DOMAIN')
-    path = config_value('COOKIE_PATH')
+    cookie_name = config_value("COOKIE_NAME")
+    domain = config_value("COOKIE_DOMAIN")
+    path = config_value("COOKIE_PATH")
 
     response.delete_cookie(cookie_name, domain=domain, path=path)
 
 
 def get_user():
-    if has_request_context() and not hasattr(_request_ctx_stack.top, 'user'):
+    if has_request_context() and not hasattr(_request_ctx_stack.top, "user"):
         current_identity.get_current_user()
 
-    return getattr(_request_ctx_stack.top, 'user', None)
+    return getattr(_request_ctx_stack.top, "user", None)

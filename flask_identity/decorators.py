@@ -41,10 +41,10 @@ def auth_required(*auth_methods):
 
     Example::
 
-        @app.route('/dashboard')
-        @auth_required('token', 'session')
+        @app.route("/dashboard")
+        @auth_required("token", "session")
         def dashboard():
-            return 'Dashboard'
+            return "Dashboard"
 
     :param auth_methods: Specified mechanisms (token, session). If not specified
         then all current available mechanisms will be tried.
@@ -93,7 +93,7 @@ def login_required(view_function):
 
     For example::
 
-        @app.route('/post')
+        @app.route("/post")
         @login_required
         def post():
             pass
@@ -109,7 +109,7 @@ def login_required(view_function):
     """
     @wraps(view_function)
     def decorated_view(*args, **kwargs):
-        if request.method in config_value('EXEMPT_METHODS'):
+        if request.method in config_value("EXEMPT_METHODS"):
             return view_function(*args, **kwargs)
         elif not current_user.is_authenticated:
             return current_identity.unauthorized()
@@ -125,9 +125,9 @@ def roles_required(*role_names):
 
     Example::
 
-        @route('/escape')
-        @roles_required('Special', 'Agent')
-        def escape_capture():  # User must be 'Special' AND 'Agent'
+        @route("/escape")
+        @roles_required("Special", "Agent")
+        def escape_capture():  # User must be "Special" AND "Agent"
             ...
 
     Calls unauthenticated_view() when the user is not logged in
@@ -138,7 +138,7 @@ def roles_required(*role_names):
     Calls the decorated view otherwise.
     """
     def wrapper(view_function):
-        @wraps(view_function)    # Tells debuggers that is is a function wrapper
+        @wraps(view_function)    # Tells debuggers that is a function wrapper
         def decorator(*args, **kwargs):
             # User must have the required roles
             if not current_user.is_actived or not current_user.has_roles(*role_names):
@@ -160,9 +160,9 @@ def roles_accepted(*role_names):
 
     Example::
 
-        @route('/edit_article')
-        @roles_accepted('Writer', 'Editor')
-        def edit_article():  # User must be 'Writer' OR 'Editor'
+        @route("/edit_article")
+        @roles_accepted("Writer", "Editor")
+        def edit_article():  # User must be "Writer" OR "Editor"
             ...
 
     Calls unauthenticated_view() when the user is not logged in
@@ -176,11 +176,11 @@ def roles_accepted(*role_names):
     # Because roles_required(a, b) requires A AND B
     # while roles_required([a, b]) requires A OR B
     def wrapper(view_function):
-        @wraps(view_function)  # Tells debuggers that is is a function wrapper
+        @wraps(view_function)  # Tells debuggers that is a function wrapper
         def decorator(*args, **kwargs):
             # User must have the required roles
-            # NB: roles_required would call has_roles(*role_names): ('A', 'B') --> ('A', 'B')
-            # But: roles_accepted must call has_roles(role_names):  ('A', 'B') --< (('A', 'B'),)
+            # NB: roles_required would call has_roles(*role_names): ("A", "B") --> ("A", "B")
+            # But: roles_accepted must call has_roles(role_names):  ("A", "B") --< (("A", "B"),)
             if not current_user.is_actived() or not current_user.has_roles(role_names):
                 # Redirect to the unauthorized page
                 return current_identity.unauthorized()
@@ -194,7 +194,7 @@ def roles_accepted(*role_names):
 
 
 def unauth_csrf(fall_through=False):
-    """Decorator for endpoints that don't need authentication
+    """Decorator for endpoints that don"t need authentication
     but do want CSRF checks (available via Header rather than just form).
     This is required when setting *WTF_CSRF_CHECK_DEFAULT* = **False** since in that
     case, without this decorator, the form validation will attempt to do the CSRF
@@ -213,9 +213,9 @@ def unauth_csrf(fall_through=False):
     :param fall_through: if set to True, then if CSRF fails here - simply keep going.
         This is appropriate if underlying view is form based and once the form is
         instantiated, the csrf_token will be available.
-        Note that this can mask some errors such as 'The CSRF session token is missing.'
+        Note that this can mask some errors such as "The CSRF session token is missing."
         meaning that the caller didn't send a session cookie and instead the caller
-        might get a 'The CSRF token is missing.' error.
+        might get a "The CSRF token is missing." error.
     """
 
     def wrapper(fn):
