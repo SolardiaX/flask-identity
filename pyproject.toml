@@ -9,7 +9,7 @@ priority = "supplemental"
 
 [tool.poetry]
 name = "Flask-Identity"
-version = "1.0.4dev1"
+version = "1.0.4dev2"
 description = "A lightweight extension & library to security Flask applications quickly and simply."
 authors = ["SolardiaX <solardiax@hotmail.com>"]
 maintainers = ["SolardiaX <solardiax@hotmail.com>"]
