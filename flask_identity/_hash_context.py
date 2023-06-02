@@ -21,11 +21,12 @@ class HashContext(object):
     """
 
     def __init__(self, app) -> None:
-        # Use the applications's SECRET_KEY as default.
-        secret_key = app.config.get('SECRET_KEY', None)
-        secret_key = app.config.get('IDENTITY_HASH_SALT', secret_key)
+        secret_key = app.config.get('IDENTITY_HASH_SALT', None)
 
-        if not secret_key:
+        if secret_key is None:
+            secret_key = app.config.get('SECRET_KEY', None)
+
+        if secret_key is None:
             raise SystemError('Config setting SECRET_KEY or IDENTITY_HASH_SALT is missing.')
 
         schemes = app.config.get('IDENTITY_HASH_SCHEMES', ['bcrypt'])

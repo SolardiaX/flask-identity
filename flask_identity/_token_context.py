@@ -23,11 +23,12 @@ class TokenContext(object):
     """
 
     def __init__(self, app) -> None:
-        # Use the applications's SECRET_KEY as default.
-        secret_key = app.config.get('SECRET_KEY', None)
-        secret_key = app.config.get('IDENTITY_TOKEN_SALT', secret_key)
+        secret_key = app.config.get('IDENTITY_TOKEN_SALT', None)
 
-        if not secret_key:
+        if secret_key is None:
+            secret_key = app.config.get('SECRET_KEY', None)
+
+        if secret_key is None:
             raise SystemError('Config setting SECRET_KEY or IDENTITY_TOKEN_SALT is missing.')
 
         # Print a warning if SECRET_KEY is too short
