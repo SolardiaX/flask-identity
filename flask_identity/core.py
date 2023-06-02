@@ -17,7 +17,7 @@ from hashlib import sha512
 from inspect import isclass
 
 # noinspection PyProtectedMember
-from flask import _request_ctx_stack, request, session, redirect, abort, render_template, current_app
+from flask import g, request, session, redirect, abort, render_template
 from werkzeug.routing import BuildError
 
 from ._hash_context import HashContext
@@ -179,7 +179,7 @@ class IdentityManager(object):
 
         self._i18n_domain = get_i18n_domain(app)
 
-        current_app.jinja_env.globals["_fsdomain"] = self._i18n_domain.gettext
+        app.jinja_env.globals["_fsdomain"] = self._i18n_domain.gettext
 
         # Verify that if Flask-Babel is installed
         if have_babel() and "babel" not in app.extensions:
@@ -305,8 +305,7 @@ class IdentityManager(object):
         :param user: User object
         :return: Store the given user as ctx.user.
         """
-        ctx = _request_ctx_stack.top
-        ctx.user = self._anonymous_user() if user is None else user
+        g.user = self._anonymous_user() if user is None else user
 
     @property
     def datastore(self) -> IdentityStore:
