@@ -19,6 +19,14 @@ These configuration are used globally across all features and should be configur
 
     Specifies the view to redirect to if a user attempts to access a URL/endpoint that
     they do not have permission to access.
+    If this value is ``None``, the user is presented with a default HTTP 401 response.
+
+    Default: ``None``.
+
+.. py:data:: UNAUTHENTICATED_VIEW
+
+    Specifies the view to redirect to if a user attempts to access a URL/endpoint that
+    they do not have authentication to access.
     If this value is ``None``, the user is presented with a default HTTP 403 response.
 
     Default: ``None``.

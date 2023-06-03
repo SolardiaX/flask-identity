@@ -14,7 +14,7 @@ from datetime import datetime
 from urllib.parse import parse_qsl, urlsplit, urlunsplit, urlencode
 
 # noinspection PyProtectedMember
-from flask import current_app, has_request_context, request, session, url_for, _request_ctx_stack
+from flask import current_app, has_request_context, request, session, url_for, g
 from itsdangerous import base64_decode, base64_encode
 from werkzeug.local import LocalProxy
 
@@ -307,7 +307,7 @@ def clear_cookie(response):
 
 
 def get_user():
-    if has_request_context() and not hasattr(_request_ctx_stack.top, "user"):
+    if has_request_context() and not hasattr(g, "user"):
         current_identity.get_current_user()
 
-    return getattr(_request_ctx_stack.top, "user", None)
+    return g.user

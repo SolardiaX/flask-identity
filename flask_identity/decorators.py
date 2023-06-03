@@ -35,7 +35,7 @@ def _check_token():
     return False
 
 
-def auth_required(*auth_methods):
+def auth_required(auth_methods=()):
     """
     Decorator that protects endpoints through multiple mechanisms.
 

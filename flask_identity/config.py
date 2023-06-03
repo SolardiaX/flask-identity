@@ -16,9 +16,15 @@ from datetime import timedelta
 default_config = {
     #: Specifies the view to redirect to if a user attempts to access a URL/endpoint that they do
     #: not have permission to access. If this value is ``None``, the user is presented with a default
-    #: HTTP 403 response.
+    #: HTTP 401 response.
     #: Default: ``None``.
     "UNAUTHORIZED_VIEW": None,
+
+    #: Specifies the view to redirect to if a user attempts to access a URL/endpoint that they do
+    #: not have authentication to access. If this value is ``None``, the user is presented with a default
+    #: HTTP 403 response.
+    #: Default: ``None``.
+    "UNAUTHENTICATED_VIEW": None,
 
     #: Specifies the default view to redirect to after a user logs in. This value can be set to a URL
     #: or an endpoint name.
