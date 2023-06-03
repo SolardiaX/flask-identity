@@ -108,7 +108,7 @@ class UserMixin(object):
         from .utils import current_identity
 
         identity_field = current_identity.config_value("DATASTORE_IDENTITY_FIELD")
-        unique_token_field = config_value("DATASTORE_UNIQUE_TOKEN_FIELD", default="uniquifier")
+        unique_token_field = current_identity.config_value("DATASTORE_UNIQUE_TOKEN_FIELD", default="uniquifier")
         uniquifier = getattr(self, unique_token_field) if hasattr(self, unique_token_field) else None
 
         # noinspection PyProtectedMember
