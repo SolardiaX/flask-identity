@@ -9,7 +9,7 @@ priority = "supplemental"
 
 [tool.poetry]
 name = "Flask-Identity"
-version = "1.0.4dev3"
+version = "1.0.5"
 description = "A lightweight extension & library to security Flask applications quickly and simply."
 authors = ["SolardiaX <solardiax@hotmail.com>"]
 maintainers = ["SolardiaX <solardiax@hotmail.com>"]
@@ -51,7 +51,7 @@ python = "^3.9"
 flask-sqlalchemy = "^3.0.3"
 sphinx = "^7.0.1"
 flask-sphinx-themes = "^1.0.2"
-pallets-sphinx-themes = "^2.1.0"
+pallets-sphinx-themes = "^2.1.1"
 sphinx-issues = "^3.0.1"
 
 [build-system]
